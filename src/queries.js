@@ -16,7 +16,7 @@ const pool = new Pool({
 //   });
 // };
 
-const getAllJobs = (request, response) => {
+let getAllJobs = (request, response) => {
   pool.query(
     "SELECT jobs.id AS job_id, jobs.start_date, jobs.end_date, jobs.description, workers.id AS worker_id, workers.name FROM jobs LEFT JOIN workers_jobs ON jobs.id = workers_jobs.job_id LEFT JOIN workers ON workers_jobs.worker_id = workers.id ORDER BY start_date",
     (error, results) => {
