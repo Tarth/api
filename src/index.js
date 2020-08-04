@@ -13,7 +13,7 @@ app.use(
 
 app.get("/", async (request, response, next) => {
   // response.json({ info: "Node.js, Express, and Postgres API" });
-  await response.send("Hello World");
+  response.send("Hello World");
 });
 
 app.get("/workers", db.getAllJobs);
