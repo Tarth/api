@@ -7,14 +7,14 @@ const pool = new Pool({
   port: 5432,
 });
 
-// const getUsers = (request, response) => {
-//   pool.query("SELECT * FROM workers ORDER BY name ASC", (error, results) => {
-//     if (error) {
-//       throw error;
-//     }
-//     response.status(200).json(results.rows);
-//   });
-// };
+const getUsers = (request, response) => {
+  pool.query("SELECT * FROM workers ORDER BY name ASC", (error, results) => {
+    if (error) {
+      throw error;
+    }
+    response.status(200).json(results.rows);
+  });
+};
 
 let getAllJobs = (request, response) => {
   pool.query(
@@ -30,4 +30,5 @@ let getAllJobs = (request, response) => {
 
 module.exports = {
   getAllJobs,
+  getUsers,
 };
