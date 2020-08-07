@@ -13,12 +13,12 @@ app.use(
   })
 );
 
-app.get("/", async (request, response, next) => {
+app.get("/ewrasd", async (request, response, next) => {
   response.json({ info: "Node.js, Express, and Postgres API" });
   //response.send("Hello World");
 });
 
-app.get("/workers", db.getAllJobs);
+app.get("/", db.getAllJobs);
 
 app.listen(port, () => {
   console.log(`App running on port ${port}`);
