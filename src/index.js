@@ -15,10 +15,10 @@ app.use(
 
 app.get("/ewrasd", async (request, response, next) => {
   response.json({ info: "Node.js, Express, and Postgres API" });
-  //response.send("Hello World");
 });
 
 app.get("/", db.getAllJobs);
+app.get("/workers", db.getUsers);
 
 app.listen(port, () => {
   console.log(`App running on port ${port}`);
