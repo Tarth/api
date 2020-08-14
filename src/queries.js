@@ -1,3 +1,4 @@
+const morgan = require("morgan");
 const Pool = require("pg").Pool;
 const pool = new Pool({
   user: "wiplanner_admin",
@@ -13,6 +14,7 @@ const getUsers = (request, response) => {
       throw error;
     }
     response.status(200).json(results.rows);
+    morgan("dev", response);
   });
 };
 
@@ -24,6 +26,7 @@ let getAllJobs = (request, response) => {
         throw error;
       }
       response.status(200).json(results.rows);
+      morgan("dev", response);
     }
   );
 };
