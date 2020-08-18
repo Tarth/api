@@ -8,7 +8,19 @@ const rfs = require("rotating-file-stream");
 const port = 3003;
 const db = require("./queries.js");
 
-const accessLogStream = rfs.createStream("access.log", {
+const time = new Date();
+const FileNameGenerator = (time) => {
+  const pad = (num) => (num > 9 ? "" : "0") + num;
+  if (!time) return "file.log";
+
+  const year = time.getFullYear();
+  const month = pad(time.getMonth() + 1);
+  const day = pad(time.getDate());
+
+  return `${year}-${month}-${day}.log`;
+};
+
+const accessLogStream = rfs.createStream(FileNameGenerator(time), {
   interval: "1d",
   path: path.join(__dirname, "logs"),
 });
@@ -28,6 +40,8 @@ app.use(
 
 app.get("/", db.getAllJobs);
 app.get("/workers", db.getUsers);
+app.post("/workers/add", db.CreateWorker);
+app.delete("/workers/delete", db.DeleteWorker);
 
 app.listen(port, () => {
   console.log(`App running on port ${port}`);

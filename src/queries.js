@@ -31,7 +31,33 @@ let getAllJobs = (request, response) => {
   );
 };
 
+const CreateWorker = (request, response) => {
+  name = "Birthe";
+  pool.query(
+    "INSERT INTO public.workers (name) VALUES ($1)",
+    [name],
+    (error, result) => {
+      if (error) {
+        throw error;
+      }
+      response.status(201).send(`User added succesfully`);
+    }
+  );
+};
+
+const DeleteWorker = (request, response) => {
+  name = "Birthe";
+  pool.query("DELETE FROM public.workers WHERE name=$1", [name], (error) => {
+    if (error) {
+      throw error;
+    }
+    response.status(200).send(`User deleted successfully`);
+  });
+};
+
 module.exports = {
   getAllJobs,
   getUsers,
+  CreateWorker,
+  DeleteWorker,
 };
