@@ -90,3 +90,6 @@ Tue, 18 Aug 2020 10:41:34 GMT ::1 GET 304 /workers Mozilla/5.0 (Windows NT 10.0;
 Tue, 18 Aug 2020 10:41:34 GMT ::1 GET 304 /workers Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36
 Tue, 18 Aug 2020 10:41:34 GMT ::1 GET 304 /workers Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36
 Tue, 18 Aug 2020 10:41:34 GMT ::1 GET 304 /workers Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36
+Tue, 18 Aug 2020 11:00:18 GMT ::1 GET 200 /workers insomnia/2020.3.3
+Tue, 18 Aug 2020 11:02:19 GMT ::1 GET 200 / insomnia/2020.3.3
+Tue, 18 Aug 2020 11:02:57 GMT ::1 GET 200 / insomnia/2020.3.3
