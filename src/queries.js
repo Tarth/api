@@ -31,33 +31,51 @@ let getAllJobs = (request, response) => {
   );
 };
 
-const CreateWorker = (request, response) => {
-  name = "Birthe";
-  pool.query(
-    "INSERT INTO public.workers (name) VALUES ($1)",
-    [name],
-    (error, result) => {
-      if (error) {
-        throw error;
-      }
-      response.status(201).send(`User added succesfully`);
-    }
-  );
+const CreateWorker = async () => {
+  // note: we don't try/catch this because if connecting throws an exception
+  // we don't need to dispose of the client (it will be undefined)
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const queryText = "INSERT INTO workers(name) VALUES($1) RETURNING id";
+    await client.query(queryText, ["brianc"]);
+    await client.query("COMMIT");
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
 };
+// )().catch(e => console.error(e.stack))
 
-const DeleteWorker = (request, response) => {
-  name = "Birthe";
-  pool.query("DELETE FROM public.workers WHERE name=$1", [name], (error) => {
-    if (error) {
-      throw error;
-    }
-    response.status(200).send(`User deleted successfully`);
-  });
-};
+// const CreateWorker = (request, response) => {
+//   name = "Birthe";
+//   pool.query(
+//     "INSERT INTO public.workers (name) VALUES ($1)",
+//     [name],
+//     (error, result) => {
+//       if (error) {
+//         throw error;
+//       }
+//       response.status(201).send(`User added succesfully`);
+//     }
+//   );
+// };
+
+// const DeleteWorker = (request, response) => {
+//   name = "Birthe";
+//   pool.query("DELETE FROM public.workers WHERE name=$1", [name], (error) => {
+//     if (error) {
+//       throw error;
+//     }
+//     response.status(200).send(`User deleted successfully`);
+//   });
+// };
 
 module.exports = {
   getAllJobs,
   getUsers,
   CreateWorker,
-  DeleteWorker,
+  // DeleteWorker,
 };
