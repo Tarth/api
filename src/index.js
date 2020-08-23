@@ -38,7 +38,7 @@ app.use(
   })
 );
 
-app.get("/", db.getAllJobs);
+app.get("/jobs", db.getAllJobs);
 app.get("/workers", db.getUsers);
 app.post("/workers/add", db.CreateWorker);
 // app.delete("/workers/delete", db.DeleteWorker);

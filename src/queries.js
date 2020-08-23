@@ -31,7 +31,7 @@ let getAllJobs = (request, response) => {
   );
 };
 
-const CreateWorker = async () => {
+const CreateWorker = async (request, response) => {
   // note: we don't try/catch this because if connecting throws an exception
   // we don't need to dispose of the client (it will be undefined)
   const client = await pool.connect();
