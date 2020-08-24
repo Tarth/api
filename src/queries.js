@@ -31,16 +31,18 @@ let getAllJobs = (request, response) => {
   );
 };
 
-const CreateWorker = async (workername, request, response) => {
+const CreateWorker = async (request, response) => {
   // note: we don't try/catch this because if connecting throws an exception
   // we don't need to dispose of the client (it will be undefined)
+  const body = request.body;
+
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     const queryText = "INSERT INTO workers(name) VALUES($1) RETURNING id";
-    await client.query(queryText, ["brianc"]);
+    await client.query(queryText, [body.name]);
     await client.query("COMMIT");
-    // await response.status(201).send("User added successfully");
+    await response.status(201).send("User added successfully");
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;
@@ -49,14 +51,18 @@ const CreateWorker = async (workername, request, response) => {
   }
 };
 
+
 const DeleteWorker = async (request, response) => {
   // note: we don't try/catch this because if connecting throws an exception
   // we don't need to dispose of the client (it will be undefined)
+  
+  
+  // lav delete på id i stedet for name
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     const queryText = "DELETE FROM public.workers WHERE name=$1";
-    await client.query(queryText, ["brianc"]);
+    await client.query(queryText, ["Test"]);
     await client.query("COMMIT");
     response.status(201).send("User removed");
   } catch (e) {
@@ -66,6 +72,8 @@ const DeleteWorker = async (request, response) => {
     client.release();
   }
 };
+
+
 
 module.exports = {
   getAllJobs,
