@@ -8,6 +8,7 @@ const rfs = require("rotating-file-stream");
 const port = 3003;
 const db = require("./queries.js");
 
+// Logging to file
 const time = new Date();
 const FileNameGenerator = (time) => {
   const pad = (num) => (num > 9 ? "" : "0") + num;
@@ -38,10 +39,10 @@ app.use(
   })
 );
 
-app.get("/jobs", db.getAllJobs);
+app.get("/", db.getAllJobs);
 app.get("/workers", db.getUsers);
 app.post("/workers/add", db.CreateWorker);
-// app.delete("/workers/delete", db.DeleteWorker);
+app.delete("/workers/delete", db.DeleteWorker);
 
 app.listen(port, () => {
   console.log(`App running on port ${port}`);

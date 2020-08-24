@@ -31,7 +31,7 @@ let getAllJobs = (request, response) => {
   );
 };
 
-const CreateWorker = async (request, response) => {
+const CreateWorker = async (workername, request, response) => {
   // note: we don't try/catch this because if connecting throws an exception
   // we don't need to dispose of the client (it will be undefined)
   const client = await pool.connect();
@@ -40,6 +40,7 @@ const CreateWorker = async (request, response) => {
     const queryText = "INSERT INTO workers(name) VALUES($1) RETURNING id";
     await client.query(queryText, ["brianc"]);
     await client.query("COMMIT");
+    // await response.status(201).send("User added successfully");
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;
@@ -47,35 +48,28 @@ const CreateWorker = async (request, response) => {
     client.release();
   }
 };
-// )().catch(e => console.error(e.stack))
 
-// const CreateWorker = (request, response) => {
-//   name = "Birthe";
-//   pool.query(
-//     "INSERT INTO public.workers (name) VALUES ($1)",
-//     [name],
-//     (error, result) => {
-//       if (error) {
-//         throw error;
-//       }
-//       response.status(201).send(`User added succesfully`);
-//     }
-//   );
-// };
-
-// const DeleteWorker = (request, response) => {
-//   name = "Birthe";
-//   pool.query("DELETE FROM public.workers WHERE name=$1", [name], (error) => {
-//     if (error) {
-//       throw error;
-//     }
-//     response.status(200).send(`User deleted successfully`);
-//   });
-// };
+const DeleteWorker = async (request, response) => {
+  // note: we don't try/catch this because if connecting throws an exception
+  // we don't need to dispose of the client (it will be undefined)
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const queryText = "DELETE FROM public.workers WHERE name=$1";
+    await client.query(queryText, ["brianc"]);
+    await client.query("COMMIT");
+    response.status(201).send("User removed");
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+};
 
 module.exports = {
   getAllJobs,
   getUsers,
   CreateWorker,
-  // DeleteWorker,
+  DeleteWorker,
 };
