@@ -51,12 +51,10 @@ const CreateWorker = async (request, response) => {
   }
 };
 
-
 const DeleteWorker = async (request, response) => {
   // note: we don't try/catch this because if connecting throws an exception
   // we don't need to dispose of the client (it will be undefined)
-  
-  
+
   // lav delete på id i stedet for name
   const client = await pool.connect();
   try {
@@ -72,8 +70,6 @@ const DeleteWorker = async (request, response) => {
     client.release();
   }
 };
-
-
 
 module.exports = {
   getAllJobs,
