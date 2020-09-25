@@ -40,9 +40,11 @@ const CreateWorker = async (request, response) => {
   try {
     await client.query("BEGIN");
     const queryText = "INSERT INTO workers(name) VALUES($1) RETURNING id";
-    await client.query(queryText, [body.name]);
+    const res = await client.query(queryText, [body.name]);
     await client.query("COMMIT");
-    await response.status(201).send("User added successfully");
+    await response
+      .status(201)
+      .send("User added successfully with ID: " + res.rows[0].id);
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;
@@ -51,34 +53,33 @@ const CreateWorker = async (request, response) => {
   }
 };
 
-// const CreateJobs = async (request, response) => {
-//   // note: we don't try/catch this because if connecting throws an exception
-//   // we don't need to dispose of the client (it will be undefined)
-//   const body = request.body;
-
-//   const client = await pool.connect();
-//   try {
-//     await client.query("BEGIN");
-//     const queryTextJobTable =
-//       "INSERT INTO jobs(start_date, end_date, description) VALUES ($1, $2, $3);";
-//     await client.query(
-//       queryTextJobTable,
-//       "2020-08-03 09:15:00",
-//       "2020-08-04 09:15:00",
-//       "Test"
-//     );
-//     const queryTextWorkerJobTable =
-//       "INSERT INTO workers_jobs(job_id, worker_id) VALUES (lastval(), $4),(lastval(), $5);";
-//     await client.query(queryTextWorkerJobTable, 5, 7);
-//     await client.query("COMMIT");
-//     await response.status(201).send("User added successfully");
-//   } catch (e) {
-//     await client.query("ROLLBACK");
-//     throw e;
-//   } finally {
-//     client.release();
-//   }
-// };
+const CreateJob = async (request, response) => {
+  // note: we don't try/catch this because if connecting throws an exception
+  // we don't need to dispose of the client (it will be undefined)
+  const body = request.body;
+  console.log(body.query);
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const queryTextJobTable =
+      "INSERT INTO jobs(start_date, end_date, description) VALUES ($1, $2, $3) RETURNING id;";
+    const res = await client.query(queryTextJobTable, [
+      "2020-08-03 09:15:00",
+      "2020-08-04 09:15:00",
+      "Test",
+    ]);
+    const queryTextWorkerJobTable =
+      "INSERT INTO workers_jobs(job_id, worker_id) VALUES ($1, $2);";
+    await client.query(queryTextWorkerJobTable, [res.rows[0].id, 7]);
+    await client.query("COMMIT");
+    await response.status(201).send("Job added with ID: " + res.rows[0].id);
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+};
 
 const DeleteWorker = async (request, response) => {
   // note: we don't try/catch this because if connecting throws an exception
@@ -105,4 +106,5 @@ module.exports = {
   getUsers,
   CreateWorker,
   DeleteWorker,
+  CreateJob,
 };

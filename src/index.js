@@ -42,7 +42,7 @@ app.use(
 app.get("/", db.getAllJobs);
 app.get("/workers", db.getUsers);
 app.post("/workers/add", db.CreateWorker);
-// app.post("/jobs/add", db.CreateJob);
+app.post("/jobs/add", db.CreateJob);
 app.delete("/workers/delete", db.DeleteWorker);
 
 app.listen(port, () => {
