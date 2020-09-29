@@ -57,20 +57,25 @@ const CreateJob = async (request, response) => {
   // note: we don't try/catch this because if connecting throws an exception
   // we don't need to dispose of the client (it will be undefined)
   const body = request.body;
-  console.log(body.query);
+  const workerId = [2, 8];
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     const queryTextJobTable =
       "INSERT INTO jobs(start_date, end_date, description) VALUES ($1, $2, $3) RETURNING id;";
     const res = await client.query(queryTextJobTable, [
-      "2020-08-03 09:15:00",
-      "2020-08-04 09:15:00",
-      "Test",
+      body.startdate,
+      body.enddate,
+      body.description,
     ]);
     const queryTextWorkerJobTable =
       "INSERT INTO workers_jobs(job_id, worker_id) VALUES ($1, $2);";
-    await client.query(queryTextWorkerJobTable, [res.rows[0].id, 7]);
+    for (let i = 0; i < workerId.length; i++) {
+      await client.query(queryTextWorkerJobTable, [
+        res.rows[0].id,
+        workerId[i],
+      ]);
+    }
     await client.query("COMMIT");
     await response.status(201).send("Job added with ID: " + res.rows[0].id);
   } catch (e) {

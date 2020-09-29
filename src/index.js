@@ -39,6 +39,7 @@ app.use(
   })
 );
 
+//Routing
 app.get("/", db.getAllJobs);
 app.get("/workers", db.getUsers);
 app.post("/workers/add", db.CreateWorker);
