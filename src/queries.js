@@ -57,7 +57,6 @@ const CreateJob = async (request, response) => {
   // note: we don't try/catch this because if connecting throws an exception
   // we don't need to dispose of the client (it will be undefined)
   const body = request.body;
-  const workerId = [2, 8];
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -70,10 +69,10 @@ const CreateJob = async (request, response) => {
     ]);
     const queryTextWorkerJobTable =
       "INSERT INTO workers_jobs(job_id, worker_id) VALUES ($1, $2);";
-    for (let i = 0; i < workerId.length; i++) {
+    for (let i = 0; i < body.workerId.length; i++) {
       await client.query(queryTextWorkerJobTable, [
         res.rows[0].id,
-        workerId[i],
+        body.workerId[i],
       ]);
     }
     await client.query("COMMIT");
@@ -90,12 +89,14 @@ const DeleteWorker = async (request, response) => {
   // note: we don't try/catch this because if connecting throws an exception
   // we don't need to dispose of the client (it will be undefined)
 
-  // lav delete på id i stedet for name
+  const workerid = [50, 51];
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    const queryText = "DELETE FROM public.workers WHERE name=$1";
-    await client.query(queryText, ["Test"]);
+    const queryText = "DELETE FROM public.workers WHERE id=$1";
+    for (let i = 0; i < workerid.length; i++) {
+      await client.query(queryText, [workerid[i]]);
+    }
     await client.query("COMMIT");
     response.status(201).send("User removed");
   } catch (e) {
@@ -106,10 +107,36 @@ const DeleteWorker = async (request, response) => {
   }
 };
 
+const DeleteJob = async (request, response) => {
+  // note: we don't try/catch this because if connecting throws an exception
+  // we don't need to dispose of the client (it will be undefined)
+  const body = request.body;
+  const jobid = [70];
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const workersJobsQueryText = "DELETE FROM workers_jobs WHERE job_id = $1";
+    for (let i = 0; i < jobid.length; i++) {
+      await client.query(workersJobsQueryText, [jobid[i]]);
+    }
+    const jobsQueryText = "DELETE FROM jobs WHERE id = $1";
+    for (let i = 0; i < jobid.length; i++) {
+      await client.query(jobsQueryText, [jobid[i]]);
+    }
+    await client.query("COMMIT");
+    await response.status(201).send("Job deleted successfully");
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+};
 module.exports = {
   getAllJobs,
   getUsers,
   CreateWorker,
   DeleteWorker,
   CreateJob,
+  DeleteJob,
 };

@@ -43,8 +43,9 @@ app.use(
 app.get("/", db.getAllJobs);
 app.get("/workers", db.getUsers);
 app.post("/workers/add", db.CreateWorker);
-app.post("/jobs/add", db.CreateJob);
 app.delete("/workers/delete", db.DeleteWorker);
+app.post("/jobs/add", db.CreateJob);
+app.delete("/jobs/delete", db.DeleteJob);
 
 app.listen(port, () => {
   console.log(`App running on port ${port}`);
