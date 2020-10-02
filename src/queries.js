@@ -7,6 +7,7 @@ const pool = new Pool({
   password: "S9IpY925NYpuL0dMJCB6",
   port: 5432,
 });
+// const pool = require("./pool.js");
 
 const getUsers = (request, response) => {
   pool.query("SELECT * FROM workers ORDER BY name ASC", (error, results) => {
@@ -132,6 +133,7 @@ const DeleteJob = async (request, response) => {
     client.release();
   }
 };
+
 module.exports = {
   getAllJobs,
   getUsers,
