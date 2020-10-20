@@ -21,7 +21,7 @@ const getUsers = (request, response) => {
 
 let getAllJobs = (request, response) => {
   pool.query(
-    "SELECT jobs.id AS job_id, jobs.start_date, jobs.end_date, jobs.description, workers.id AS worker_id, workers.name FROM jobs LEFT JOIN workers_jobs ON jobs.id = workers_jobs.job_id LEFT JOIN workers ON workers_jobs.worker_id = workers.id ORDER BY jobs.id",
+    "SELECT jobs.id AS job_id, jobs.start_date, jobs.end_date, jobs.description, workers.id AS worker_id, workers.name FROM jobs LEFT JOIN workers_jobs ON jobs.id = workers_jobs.job_id LEFT JOIN workers ON workers_jobs.worker_id = workers.id ORDER BY jobs.start_date DESC",
     (error, results) => {
       if (error) {
         throw error;
@@ -112,17 +112,16 @@ const DeleteJob = async (request, response) => {
   // note: we don't try/catch this because if connecting throws an exception
   // we don't need to dispose of the client (it will be undefined)
   const body = request.body;
-  const jobid = [70];
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     const workersJobsQueryText = "DELETE FROM workers_jobs WHERE job_id = $1";
-    for (let i = 0; i < jobid.length; i++) {
-      await client.query(workersJobsQueryText, [jobid[i]]);
+    for (let i = 0; i < body.jobid.length; i++) {
+      await client.query(workersJobsQueryText, [body.jobid[i]]);
     }
     const jobsQueryText = "DELETE FROM jobs WHERE id = $1";
-    for (let i = 0; i < jobid.length; i++) {
-      await client.query(jobsQueryText, [jobid[i]]);
+    for (let i = 0; i < body.jobid.length; i++) {
+      await client.query(jobsQueryText, [body.jobid[i]]);
     }
     await client.query("COMMIT");
     await response.status(201).send("Job deleted successfully");
@@ -133,6 +132,32 @@ const DeleteJob = async (request, response) => {
     client.release();
   }
 };
+
+// const DeleteJob = async (request, response) => {
+//   // note: we don't try/catch this because if connecting throws an exception
+//   // we don't need to dispose of the client (it will be undefined)
+//   const body = request.body;
+//   const jobid = [70];
+//   const client = await pool.connect();
+//   try {
+//     await client.query("BEGIN");
+//     const workersJobsQueryText = "DELETE FROM workers_jobs WHERE job_id = $1";
+//     for (let i = 0; i < jobid.length; i++) {
+//       await client.query(workersJobsQueryText, [jobid[i]]);
+//     }
+//     const jobsQueryText = "DELETE FROM jobs WHERE id = $1";
+//     for (let i = 0; i < jobid.length; i++) {
+//       await client.query(jobsQueryText, [jobid[i]]);
+//     }
+//     await client.query("COMMIT");
+//     await response.status(201).send("Job deleted successfully");
+//   } catch (e) {
+//     await client.query("ROLLBACK");
+//     throw e;
+//   } finally {
+//     client.release();
+//   }
+// };
 
 module.exports = {
   getAllJobs,
