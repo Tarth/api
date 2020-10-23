@@ -116,13 +116,9 @@ const DeleteJob = async (request, response) => {
   try {
     await client.query("BEGIN");
     const workersJobsQueryText = "DELETE FROM workers_jobs WHERE job_id = $1";
-    for (let i = 0; i < body.jobid.length; i++) {
-      await client.query(workersJobsQueryText, [body.jobid[i]]);
-    }
+    await client.query(workersJobsQueryText, [body.jobid]);
     const jobsQueryText = "DELETE FROM jobs WHERE id = $1";
-    for (let i = 0; i < body.jobid.length; i++) {
-      await client.query(jobsQueryText, [body.jobid[i]]);
-    }
+    await client.query(jobsQueryText, [body.jobid]);
     await client.query("COMMIT");
     await response.status(201).send("Job deleted successfully");
   } catch (e) {
