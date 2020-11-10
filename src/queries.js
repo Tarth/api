@@ -115,6 +115,27 @@ const DeleteJob = async (request, response) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+    const workersJobsQueryText = "U workers_jobs WHERE job_id = $1";
+    await client.query(workersJobsQueryText, [body.jobid]);
+    const jobsQueryText = "DELETE FROM jobs WHERE id = $1";
+    await client.query(jobsQueryText, [body.jobid]);
+    await client.query("COMMIT");
+    await response.status(201).send("Job deleted successfully");
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+};
+
+const UpdateJob = async (request, response) => {
+  // note: we don't try/catch this because if connecting throws an exception
+  // we don't need to dispose of the client (it will be undefined)
+  const body = request.body;
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
     const workersJobsQueryText = "DELETE FROM workers_jobs WHERE job_id = $1";
     await client.query(workersJobsQueryText, [body.jobid]);
     const jobsQueryText = "DELETE FROM jobs WHERE id = $1";
@@ -129,32 +150,6 @@ const DeleteJob = async (request, response) => {
   }
 };
 
-// const DeleteJob = async (request, response) => {
-//   // note: we don't try/catch this because if connecting throws an exception
-//   // we don't need to dispose of the client (it will be undefined)
-//   const body = request.body;
-//   const jobid = [70];
-//   const client = await pool.connect();
-//   try {
-//     await client.query("BEGIN");
-//     const workersJobsQueryText = "DELETE FROM workers_jobs WHERE job_id = $1";
-//     for (let i = 0; i < jobid.length; i++) {
-//       await client.query(workersJobsQueryText, [jobid[i]]);
-//     }
-//     const jobsQueryText = "DELETE FROM jobs WHERE id = $1";
-//     for (let i = 0; i < jobid.length; i++) {
-//       await client.query(jobsQueryText, [jobid[i]]);
-//     }
-//     await client.query("COMMIT");
-//     await response.status(201).send("Job deleted successfully");
-//   } catch (e) {
-//     await client.query("ROLLBACK");
-//     throw e;
-//   } finally {
-//     client.release();
-//   }
-// };
-
 module.exports = {
   getAllJobs,
   getUsers,
@@ -162,4 +157,5 @@ module.exports = {
   DeleteWorker,
   CreateJob,
   DeleteJob,
+  UpdateJob,
 };
