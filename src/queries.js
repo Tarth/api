@@ -115,7 +115,7 @@ const DeleteJob = async (request, response) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    const workersJobsQueryText = "U workers_jobs WHERE job_id = $1";
+    const workersJobsQueryText = "DELETE FROM workers_jobs WHERE job_id = $1";
     await client.query(workersJobsQueryText, [body.jobid]);
     const jobsQueryText = "DELETE FROM jobs WHERE id = $1";
     await client.query(jobsQueryText, [body.jobid]);
