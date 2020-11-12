@@ -136,12 +136,27 @@ const UpdateJob = async (request, response) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    const workersJobsQueryText = "DELETE FROM workers_jobs WHERE job_id = $1";
-    await client.query(workersJobsQueryText, [body.jobid]);
-    const jobsQueryText = "DELETE FROM jobs WHERE id = $1";
-    await client.query(jobsQueryText, [body.jobid]);
+    const queryUpdateJobInTable =
+      "UPDATE jobs SET start_date = $1, end_date = $2, description = $3 WHERE jobs.id = $4;";
+    const res = await client.query(queryUpdateJobInTable, [
+      body.startdate,
+      body.enddate,
+      body.description,
+      body.jobid,
+    ]);
+    const queryDeleteWorkersFromTable =
+      "DELETE FROM workers_jobs WHERE job_id = $1;";
+    await client.query(queryDeleteWorkersFromTable, [body.jobid]);
+    const queryCombineJobWithWorkers =
+      "INSERT INTO workers_jobs(job_id, worker_id) VALUES ($1, $2);";
+    for (let i = 0; i < body.workerId.length; i++) {
+      await client.query(queryCombineJobWithWorkers, [
+        body.jobid,
+        body.workerId[i],
+      ]);
+    }
     await client.query("COMMIT");
-    await response.status(201).send("Job deleted successfully");
+    await response.status(201).send("Job added with ID");
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;
