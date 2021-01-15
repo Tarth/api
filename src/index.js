@@ -1,6 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
+// const keycloakinit = require("./config/keycloak-config.js").initKeycloak();
+// const keycloak = require("./config/keycloak-config.js").getKeycloak();
 const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
@@ -35,6 +37,7 @@ app.use(
     stream: accessLogStream,
   })
 );
+// app.use(keycloakinit.middleware());
 app.use(
   bodyParser.urlencoded({
     extended: true,
