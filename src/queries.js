@@ -1,11 +1,11 @@
 const morgan = require("morgan");
 const Pool = require("pg").Pool;
 const pool = new Pool({
-  user: "wiplanner_admin",
-  host: "localhost",
-  database: "wiplanner_api",
-  password: "S9IpY925NYpuL0dMJCB6",
-  port: 5432,
+  user: process.env.POOL_USER,
+  host: process.env.POOL_HOST,
+  database: process.env.POOL_DB,
+  password: process.env.POOL_PWD,
+  port: process.env.POOL_PORT,
 });
 // const pool = require("./pool.js");
 
