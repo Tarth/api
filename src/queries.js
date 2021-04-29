@@ -33,8 +33,6 @@ let getAllJobs = (request, response) => {
 };
 
 const CreateWorker = async (request, response) => {
-  // note: we don't try/catch this because if connecting throws an exception
-  // we don't need to dispose of the client (it will be undefined)
   const body = request.body;
 
   const client = await pool.connect();
@@ -55,8 +53,6 @@ const CreateWorker = async (request, response) => {
 };
 
 const CreateJob = async (request, response) => {
-  // note: we don't try/catch this because if connecting throws an exception
-  // we don't need to dispose of the client (it will be undefined)
   const body = request.body;
   const client = await pool.connect();
   try {
@@ -87,9 +83,6 @@ const CreateJob = async (request, response) => {
 };
 
 const DeleteWorker = async (request, response) => {
-  // note: we don't try/catch this because if connecting throws an exception
-  // we don't need to dispose of the client (it will be undefined)
-
   const workerid = [50, 51];
   const client = await pool.connect();
   try {
@@ -109,8 +102,6 @@ const DeleteWorker = async (request, response) => {
 };
 
 const DeleteJob = async (request, response) => {
-  // note: we don't try/catch this because if connecting throws an exception
-  // we don't need to dispose of the client (it will be undefined)
   const body = request.body;
   const client = await pool.connect();
   try {
@@ -130,8 +121,6 @@ const DeleteJob = async (request, response) => {
 };
 
 const UpdateJob = async (request, response) => {
-  // note: we don't try/catch this because if connecting throws an exception
-  // we don't need to dispose of the client (it will be undefined)
   const body = request.body;
   const client = await pool.connect();
   try {
