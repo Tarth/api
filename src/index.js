@@ -1,14 +1,13 @@
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
-// const keycloakinit = require("./config/keycloak-config.js").initKeycloak();
-// const keycloak = require("./config/keycloak-config.js").getKeycloak();
 const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
 const rfs = require("rotating-file-stream");
-const port = 3003;
 const db = require("./queries.js");
+const port = process.env.PORT || 3003;
 const { request } = require("http");
 const { response } = require("express");
 
@@ -37,7 +36,6 @@ app.use(
     stream: accessLogStream,
   })
 );
-// app.use(keycloakinit.middleware());
 app.use(
   bodyParser.urlencoded({
     extended: true,
