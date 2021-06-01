@@ -53,14 +53,14 @@ const CreateWorker = async (request, response) => {
 
 const DeleteWorker = async (request, response) => {
   const body = request.body;
-  const workerid = [54, 55];
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    const queryText = "DELETE FROM public.workers WHERE id=$1";
-    for (let i = 0; i < workerid.length; i++) {
-      await client.query(queryText, [workerid[i]]);
-    }
+    const queryText = "DELETE FROM workers WHERE id=$1";
+    // for (let i = 0; i < workerid.length; i++) {
+    //   await client.query(queryText, [workerid[i]]);
+    // }
+    await client.query(queryText, [body.id]);
     await client.query("COMMIT");
     response.status(201).send("User removed");
   } catch (e) {
