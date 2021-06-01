@@ -8,8 +8,8 @@ const path = require("path");
 const rfs = require("rotating-file-stream");
 const db = require("./queries.js");
 const port = process.env.PORT || 3003;
-const { request } = require("http");
-const { response } = require("express");
+// const { request } = require("http");
+// const { response } = require("express");
 
 // Logging to file
 const time = new Date();

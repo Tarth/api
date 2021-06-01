@@ -34,7 +34,6 @@ let getAllJobs = (request, response) => {
 
 const CreateWorker = async (request, response) => {
   const body = request.body;
-
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -44,6 +43,26 @@ const CreateWorker = async (request, response) => {
     await response
       .status(201)
       .send("User added successfully with ID: " + res.rows[0].id);
+  } catch (e) {
+    await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+};
+
+const DeleteWorker = async (request, response) => {
+  const body = request.body;
+  const workerid = [54, 55];
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const queryText = "DELETE FROM public.workers WHERE id=$1";
+    for (let i = 0; i < workerid.length; i++) {
+      await client.query(queryText, [workerid[i]]);
+    }
+    await client.query("COMMIT");
+    response.status(201).send("User removed");
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;
@@ -74,25 +93,6 @@ const CreateJob = async (request, response) => {
     }
     await client.query("COMMIT");
     await response.status(201).send("Job added with ID: " + res.rows[0].id);
-  } catch (e) {
-    await client.query("ROLLBACK");
-    throw e;
-  } finally {
-    client.release();
-  }
-};
-
-const DeleteWorker = async (request, response) => {
-  const workerid = [50, 51];
-  const client = await pool.connect();
-  try {
-    await client.query("BEGIN");
-    const queryText = "DELETE FROM public.workers WHERE id=$1";
-    for (let i = 0; i < workerid.length; i++) {
-      await client.query(queryText, [workerid[i]]);
-    }
-    await client.query("COMMIT");
-    response.status(201).send("User removed");
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;
