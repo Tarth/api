@@ -7,7 +7,6 @@ const pool = new Pool({
   password: process.env.POOL_PWD,
   port: process.env.POOL_PORT,
 });
-// const pool = require("./pool.js");
 
 const getUsers = (request, response) => {
   pool.query("SELECT * FROM workers ORDER BY name ASC", (error, results) => {
@@ -55,14 +54,18 @@ const DeleteWorker = async (request, response) => {
   const body = request.body;
   const client = await pool.connect();
   try {
+    let res;
     await client.query("BEGIN");
-    const queryText = "DELETE FROM workers WHERE id=$1";
-    // for (let i = 0; i < workerid.length; i++) {
-    //   await client.query(queryText, [workerid[i]]);
-    // }
-    await client.query(queryText, [body.id]);
+    const queryText = "DELETE FROM workers WHERE id=$1 RETURNING *";
+    if (Array.isArray(body.id) === true) {
+      for (let i = 0; i < body.id.length; i++) {
+        res = await client.query(queryText, [body.id[i]]);
+      }
+    } else {
+      res = await client.query(queryText, [body.id]);
+    }
     await client.query("COMMIT");
-    response.status(201).send("User removed");
+    response.status(200).json({ deletedAmount: res.rowCount }); // returns number of items deleted
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;
