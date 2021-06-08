@@ -29,7 +29,12 @@ const accessLogStream = rfs.createStream(FileNameGenerator(time), {
   path: path.join(__dirname, "logs"),
 });
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+  })
+);
+
 app.use(bodyParser.json());
 app.use(
   morgan(":date[web] :remote-addr :method :status :url :user-agent", {
