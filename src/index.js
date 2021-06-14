@@ -8,9 +8,11 @@ const path = require("path");
 const rfs = require("rotating-file-stream");
 const db = require("./queries.js");
 const port = process.env.PORT || 3003;
-const userData = require("../data.json");
 const jwt = require("jsonwebtoken");
 const auth = require("./auth.js");
+const fs = require("fs");
+const bcrypt = require("bcrypt");
+
 // Logging to file
 const time = new Date();
 const FileNameGenerator = (time) => {
@@ -47,12 +49,50 @@ app.use(
   })
 );
 
+function readUserData() {
+  let rawdata = fs.readFileSync("users.json");
+  let users = JSON.parse(rawdata);
+  return users;
+}
+
+function writeUserData(userData) {
+  let userDataArray = readUserData();
+  const newArray = [...userDataArray, userData];
+  let data = JSON.stringify(newArray, null, 2);
+  fs.writeFileSync("users.json", data);
+}
+
 //Routing
 app.get("/", auth.authenticateToken, (req, res) => {
   db.getAllJobs(req, res);
 });
 
 let refreshTokens = [];
+
+app.post("/test/adduser", async (req, res) => {
+  try {
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const user = {
+      id: req.body.id,
+      mail: req.body.mail,
+      password: hashedPassword,
+    };
+    writeUserData(user);
+    res.status(201).send();
+  } catch {
+    res.status(500).send();
+  }
+});
+
+app.post("/test/deleteuser", (req, res) => {
+  const users = readUserData();
+  const user = users.find((user) => user.mail == req.body.mail);
+});
+
+app.get("/test/getusers", (req, res) => {
+  users = readUserData();
+  res.json(users);
+});
 
 app.post("/token", (req, res) => {
   const refreshToken = req.body.token;

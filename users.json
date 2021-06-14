@@ -1,0 +1,17 @@
+[
+  {
+    "id": "1",
+    "mail": "mbe@winoto.dk",
+    "password": "1234"
+  },
+  {
+    "id": "4",
+    "mail": "test@winoto.dk",
+    "password": "password"
+  },
+  {
+    "id": "5",
+    "mail": "test@winoto.dk",
+    "password": "$2b$10$hVC6h1KzHInB6.8I2pYqIuypulQe1Tmy7DDCLQQHyCwwj1sYmYupG"
+  }
+]
