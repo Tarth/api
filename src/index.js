@@ -106,14 +106,24 @@ app.post("/token", (req, res) => {
   });
 });
 
-app.post("/login", (req, res) => {
-  // Authenticate user
-  const username = req.body.username;
-  const user = { name: username };
-  const accessToken = auth.generateAccessToken(user);
-  const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-  refreshTokens.push(refreshToken);
-  res.json({ accessToken: accessToken, refreshToken: refreshToken });
+app.post("/login", async (req, res) => {
+  const userAuthentication = await auth.authenticateUser(req, res);
+  if (userAuthentication == "missing user") {
+    res.status(403).json("User not found");
+  } else if (userAuthentication == "missing mail/password") {
+    res.status(400).json("Mail or password missing from request");
+  } else if (userAuthentication == "wrong password") {
+    res.status(401).json("Wrong password");
+  } else {
+    res.status(200).json(userAuthentication);
+    console.log(userAuthentication);
+    const username = req.body.mail;
+    const user = { name: username };
+    const accessToken = auth.generateAccessToken(user);
+    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
+    refreshTokens.push(refreshToken);
+    res.json({ accessToken: accessToken, refreshToken: refreshToken });
+  }
 });
 app.get("/workers", auth.authenticateToken, (req, res) => {
   db.getUsers(req, res);
