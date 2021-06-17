@@ -63,11 +63,6 @@ function writeUserData(userData) {
 }
 
 //Routing
-app.get("/", auth.authenticateToken, (req, res) => {
-  db.getAllJobs(req, res);
-});
-
-let refreshTokens = [];
 
 app.post("/test/adduser", async (req, res) => {
   try {
@@ -106,6 +101,12 @@ app.post("/token", (req, res) => {
   });
 });
 
+app.get("/", auth.authenticateToken, (req, res) => {
+  db.getAllJobs(req, res);
+});
+
+let refreshTokens = [];
+
 app.post("/login", async (req, res) => {
   const userAuthentication = await auth.authenticateUser(req, res);
   if (userAuthentication == "missing user") {
@@ -115,8 +116,6 @@ app.post("/login", async (req, res) => {
   } else if (userAuthentication == "wrong password") {
     res.status(401).json("Wrong password");
   } else {
-    res.status(200).json(userAuthentication);
-    console.log(userAuthentication);
     const username = req.body.mail;
     const user = { name: username };
     const accessToken = auth.generateAccessToken(user);
