@@ -124,22 +124,22 @@ app.post("/login", async (req, res) => {
     res.json({ accessToken: accessToken, refreshToken: refreshToken });
   }
 });
-app.get("/workers", auth.authenticateToken, (req, res) => {
+app.get("/workers", (req, res) => {
   db.getUsers(req, res);
 });
-app.post("/workers/add", auth.authenticateToken, (req, res) => {
+app.post("/workers/add", (req, res) => {
   db.CreateWorker(req, res);
 });
-app.delete("/workers/delete", auth.authenticateToken, (req, res) => {
+app.delete("/workers/delete", (req, res) => {
   db.DeleteWorker(req, res);
 });
-app.post("/jobs/add", auth.authenticateToken, (req, res) => {
+app.post("/jobs/add", (req, res) => {
   db.CreateJob(req, res);
 });
-app.delete("/jobs/delete", auth.authenticateToken, (req, res) => {
+app.delete("/jobs/delete", (req, res) => {
   db.DeleteJob(req, res);
 });
-app.put("/jobs/update", auth.authenticateToken, (req, res) => {
+app.put("/jobs/update", (req, res) => {
   db.UpdateJob(req, res);
 });
 
