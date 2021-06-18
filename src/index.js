@@ -116,7 +116,7 @@ app.post("/login", async (req, res) => {
   } else if (userAuthentication == "wrong password") {
     res.status(401).json("Wrong password");
   } else {
-    const username = req.body.mail;
+    const username = req.body.username;
     const user = { name: username };
     const accessToken = auth.generateAccessToken(user);
     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);

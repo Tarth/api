@@ -1,7 +1,7 @@
 [
   {
-    "id": "5",
-    "mail": "test@winoto.dk",
-    "password": "$2b$10$EtkV65i.lfVl.HnS68.uZ.du0nngHlG1QZGyxLlQ0.VjgKEhgQDam"
+    "id": 1,
+    "username": "test",
+    "password": "$2b$10$EJ..zXbGOE5gzxDUp9gfCuJ.SN47c5dIhSYX/EOte2C7yIsYCT27i"
   }
 ]

@@ -22,12 +22,12 @@ function generateAccessToken(user) {
 
 async function authenticateUser(req, res) {
   if (
-    !req.body.hasOwnProperty("mail") ||
+    !req.body.hasOwnProperty("username") ||
     !req.body.hasOwnProperty("password")
   ) {
     return "missing mail/password";
   }
-  const user = userData.find((user) => user.mail == req.body.mail);
+  const user = userData.find((user) => user.username == req.body.username);
   if (user == undefined) {
     return "missing user";
   }
