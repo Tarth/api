@@ -68,8 +68,7 @@ app.post("/test/adduser", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = {
-      id: req.body.id,
-      mail: req.body.mail,
+      username: req.body.username,
       password: hashedPassword,
     };
     writeUserData(user);
