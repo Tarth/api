@@ -3,5 +3,9 @@
     "id": 1,
     "username": "test",
     "password": "$2b$10$EJ..zXbGOE5gzxDUp9gfCuJ.SN47c5dIhSYX/EOte2C7yIsYCT27i"
+  },
+  {
+    "username": "1",
+    "password": "$2b$10$.fzbBV3/51tseTVuMPo59OAL5kdGGucan0XB5RMU.5gzSfyyY0sRS"
   }
 ]
