@@ -3,7 +3,7 @@ const userData = require("../users.json");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-function authenticateToken(req, res, next) {
+function authenticateAccessToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (token == null) {
@@ -43,7 +43,7 @@ async function authenticateUser(req, res) {
 }
 
 module.exports = {
-  authenticateToken,
+  authenticateAccessToken,
   authenticateUser,
   generateAccessToken,
 };

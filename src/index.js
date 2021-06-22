@@ -100,7 +100,7 @@ app.post("/token", (req, res) => {
   });
 });
 
-app.get("/", auth.authenticateToken, (req, res) => {
+app.get("/", auth.authenticateAccessToken, (req, res) => {
   db.getAllJobs(req, res);
 });
 
