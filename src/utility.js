@@ -37,10 +37,6 @@ function replaceActiveRefreshToken(activeToken) {
       }
     }
   }
-
-  for (const item of newArray) {
-    console.log(parseJWT(item));
-  }
   fs.writeFileSync(filename, JSON.stringify(newArray, null, 2));
 }
 
