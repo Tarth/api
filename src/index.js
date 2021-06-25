@@ -10,8 +10,8 @@ const db = require("./queries.js");
 const port = process.env.PORT || 3003;
 const jwt = require("jsonwebtoken");
 const auth = require("./auth.js");
-const fs = require("fs");
 const bcrypt = require("bcrypt");
+const util = require("./utility.js");
 
 // Logging to file
 const time = new Date();
@@ -49,19 +49,6 @@ app.use(
   })
 );
 
-function readUserData() {
-  let rawdata = fs.readFileSync("users.json");
-  let users = JSON.parse(rawdata);
-  return users;
-}
-
-function writeUserData(userData) {
-  let userDataArray = readUserData();
-  const newArray = [...userDataArray, userData];
-  let data = JSON.stringify(newArray, null, 2);
-  fs.writeFileSync("users.json", data);
-}
-
 //Routing
 
 app.post("/test/adduser", async (req, res) => {
@@ -71,7 +58,7 @@ app.post("/test/adduser", async (req, res) => {
       username: req.body.username,
       password: hashedPassword,
     };
-    writeUserData(user);
+    util.writeJSON(user, "users.json");
     res.status(201).send();
   } catch {
     res.status(500).send();
@@ -79,18 +66,17 @@ app.post("/test/adduser", async (req, res) => {
 });
 
 app.post("/test/deleteuser", (req, res) => {
-  const users = readUserData();
+  const users = util.readJSON();
   const user = users.find((user) => user.mail == req.body.mail);
 });
 
 app.get("/test/getusers", (req, res) => {
-  users = readUserData();
+  users = util.readJSON();
   res.json(users);
 });
 
 app.post("/token", (req, res) => {
   const refreshToken = req.body.token;
-  //store token in db
   if (refreshToken == null) return res.sendStatus(401);
   if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
@@ -100,11 +86,11 @@ app.post("/token", (req, res) => {
   });
 });
 
-app.get("/", auth.authenticateAccessToken, (req, res) => {
+app.get("/calendar", auth.authenticateAccessToken, (req, res) => {
   db.getAllJobs(req, res);
 });
 
-let refreshTokens = [];
+app.get("/", (req, res) => {});
 
 app.post("/login", async (req, res) => {
   const userAuthentication = await auth.authenticateUser(req, res);
@@ -116,10 +102,10 @@ app.post("/login", async (req, res) => {
     res.status(401).json("Wrong password");
   } else {
     const username = req.body.username;
-    const user = { name: username };
+    const user = { username: username };
     const accessToken = auth.generateAccessToken(user);
     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-    refreshTokens.push(refreshToken);
+    util.replaceActiveRefreshToken(refreshToken);
     res.json({ accessToken: accessToken, refreshToken: refreshToken });
   }
 });

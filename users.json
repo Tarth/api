@@ -1,11 +1,10 @@
 [
   {
-    "id": 1,
-    "username": "test",
-    "password": "$2b$10$EJ..zXbGOE5gzxDUp9gfCuJ.SN47c5dIhSYX/EOte2C7yIsYCT27i"
+    "username": "1",
+    "password": "$2b$10$fFDYfFdl9Fq2emOybvuJa.naboGzbL5SYz/bCvZx7VrWgsB/8wlkO"
   },
   {
     "username": "1",
-    "password": "$2b$10$.fzbBV3/51tseTVuMPo59OAL5kdGGucan0XB5RMU.5gzSfyyY0sRS"
+    "password": "$2b$10$9lgm98.vhLSHoKAvCQL3j.2P.ExVQPL1qmsXhrUH6Alcu31YMT8vm"
   }
 ]
