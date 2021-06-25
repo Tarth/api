@@ -25,7 +25,7 @@ function replaceActiveRefreshToken(activeToken) {
   const decodedActiveToken = parseJWT(activeToken);
   let newArray = [];
 
-  if (tokens.includes(activeToken) == false) {
+  if (tokens.length == 0) {
     newArray = [...tokens, activeToken];
   } else {
     for (const token of tokens) {
@@ -36,6 +36,10 @@ function replaceActiveRefreshToken(activeToken) {
         newArray.push(token);
       }
     }
+  }
+
+  for (const item of newArray) {
+    console.log(parseJWT(item));
   }
   fs.writeFileSync(filename, JSON.stringify(newArray, null, 2));
 }
