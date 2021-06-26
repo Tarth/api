@@ -17,7 +17,7 @@ function authenticateAccessToken(req, res, next) {
 }
 
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "45s" });
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "10s" });
 }
 
 async function authenticateUser(req, res) {

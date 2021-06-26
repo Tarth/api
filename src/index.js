@@ -76,6 +76,7 @@ app.get("/test/getusers", (req, res) => {
 });
 
 app.post("/token", (req, res) => {
+  const refreshTokens = util.readJSON("refreshtokens.json");
   const refreshToken = req.body.token;
   if (refreshToken == null) return res.sendStatus(401);
   if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
