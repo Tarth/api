@@ -51,11 +51,12 @@ app.use(
 
 //Routing
 
-app.post("/test/adduser", async (req, res) => {
+app.post("/users/add", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const user = {
       username: req.body.username,
+      usergroup: req.body.usergroup,
       password: hashedPassword,
     };
     util.writeJSON(user, "users.json");
@@ -65,13 +66,13 @@ app.post("/test/adduser", async (req, res) => {
   }
 });
 
-app.post("/test/deleteuser", (req, res) => {
-  const users = util.readJSON();
+app.post("/users/delete", (req, res) => {
+  const users = util.readJSON("users.json");
   const user = users.find((user) => user.mail == req.body.mail);
 });
 
-app.get("/test/getusers", (req, res) => {
-  users = util.readJSON();
+app.get("/users/get", (req, res) => {
+  users = util.readJSON("users.json");
   res.json(users);
 });
 
@@ -87,9 +88,18 @@ app.post("/token", (req, res) => {
   });
 });
 
-app.get("/calendar", auth.authenticateAccessToken, (req, res) => {
-  db.getAllJobs(req, res);
-});
+app.get(
+  "/calendar",
+  function (res, req, next) {
+    auth.authenticateAccessToken(res, req, next);
+  },
+  function (res, req, next) {
+    auth.groupPermissions(res, req, next, "planner");
+  },
+  (req, res) => {
+    db.getAllJobs(req, res);
+  }
+);
 
 app.get("/", (req, res) => {});
 
@@ -103,7 +113,8 @@ app.post("/login", async (req, res) => {
     res.status(401).json("Wrong password");
   } else {
     const username = req.body.username;
-    const user = { username: username };
+    const usergroup = req.body.usergroup;
+    const user = { username: username, usergroup: usergroup };
     const accessToken = auth.generateAccessToken(user);
     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
     util.replaceActiveRefreshToken(refreshToken);

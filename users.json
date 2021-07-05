@@ -1,10 +1,17 @@
 [
   {
     "username": "1",
+    "usergroup": "winotoadmin",
     "password": "$2b$10$fFDYfFdl9Fq2emOybvuJa.naboGzbL5SYz/bCvZx7VrWgsB/8wlkO"
   },
   {
-    "username": "1",
-    "password": "$2b$10$9lgm98.vhLSHoKAvCQL3j.2P.ExVQPL1qmsXhrUH6Alcu31YMT8vm"
+    "username": "2",
+    "usergroup": "planner",
+    "password": "$2b$10$WWhbPfMXJNZ8dvEkYHJCK.q9yHPIaxUiAn1WJlcBXjneJCL8ELvpS"
+  },
+  {
+    "username": "3",
+    "usergroup": "worker",
+    "password": "$2b$10$I4pV588HEu/G8qxBTnXqF.l/p3QX2NM9y/n/BBCMwTBtdzn7D/oh."
   }
 ]

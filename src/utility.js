@@ -40,9 +40,27 @@ function replaceActiveRefreshToken(activeToken) {
   fs.writeFileSync(filename, JSON.stringify(newArray, null, 2));
 }
 
+function userGroupEnum() {
+  const userGroups = {
+    winoto: 1,
+    planner: 2,
+    worker: 3,
+  };
+  return Object.freeze(userGroups);
+}
+
+function getUserGroupNumber(usergroup) {
+  const _userGroupEnum = userGroupEnum();
+  if (_userGroupEnum.hasOwnProperty(usergroup)) {
+    return _userGroupEnum[usergroup];
+  }
+}
+
 module.exports = {
   parseJWT,
   readJSON,
   writeJSON,
   replaceActiveRefreshToken,
+  userGroupEnum,
+  getUserGroupNumber,
 };

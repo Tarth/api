@@ -2,6 +2,8 @@ require("dotenv").config();
 const userData = require("../users.json");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const util = require("./utility");
+const expiresTime = "15000m";
 
 function authenticateAccessToken(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -17,7 +19,9 @@ function authenticateAccessToken(req, res, next) {
 }
 
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "10s" });
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: expiresTime,
+  });
 }
 
 async function authenticateUser(req, res) {
@@ -42,8 +46,25 @@ async function authenticateUser(req, res) {
   }
 }
 
+function groupPermissions(req, res, next, minAccessLevel) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  const user = util.parseJWT(token);
+  const accessLevel = util.getUserGroupNumber(minAccessLevel);
+  const userGroup = util.getUserGroupNumber(user.usergroup);
+
+  if (userGroup > accessLevel) {
+    console.log("User not allowed");
+  } else {
+    console.log("Correct Permissions");
+  }
+
+  res.send();
+}
+
 module.exports = {
   authenticateAccessToken,
   authenticateUser,
   generateAccessToken,
+  groupPermissions,
 };
