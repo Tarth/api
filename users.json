@@ -13,5 +13,10 @@
     "username": "3",
     "usergroup": "worker",
     "password": "$2b$10$I4pV588HEu/G8qxBTnXqF.l/p3QX2NM9y/n/BBCMwTBtdzn7D/oh."
+  },
+  {
+    "username": "4",
+    "usergroup": "planner",
+    "password": "$2b$10$DurrJEi9Gl94eGX8MroPWOtGPxMI11hDRxGNas25S17Nc764QfQ2C"
   }
 ]

@@ -6,22 +6,33 @@ function parseJWT(token) {
   return JSON.parse(payload.toString());
 }
 
-function readJSON(filename) {
-  let rawdata = fs.readFileSync(filename);
-  let parsedData = JSON.parse(rawdata);
-  return parsedData;
+async function readJSON(filename) {
+  try {
+    let rawdata = fs.readFileSync(filename);
+    let parsedData = JSON.parse(rawdata);
+    return parsedData;
+  } catch (e) {
+    return e;
+  }
 }
 
-function writeJSON(userData, filename) {
-  let userDataArray = readJSON(filename);
-  const newArray = [...userDataArray, userData];
-  let data = JSON.stringify(newArray, null, 2);
-  fs.writeFileSync(filename, data);
+async function writeJSON(userData, filename) {
+  try {
+    // let userDataArray = await readJSON(filename);
+    // const newArray = [...userDataArray, userData];
+    let data = JSON.stringify(userData, null, 2);
+    fs.writeFile(filename, data, (err) => {
+      if (err) throw err;
+      console.log("The file has been saved");
+    });
+  } catch (err) {
+    throw err;
+  }
 }
 
-function replaceActiveRefreshToken(activeToken) {
+async function replaceActiveRefreshToken(activeToken) {
   const filename = "refreshtokens.json";
-  const tokens = readJSON(filename); // tokens: []
+  const tokens = await readJSON(filename); // tokens: []
   const decodedActiveToken = parseJWT(activeToken);
   let newArray = [];
 
@@ -42,7 +53,7 @@ function replaceActiveRefreshToken(activeToken) {
 
 function userGroupEnum() {
   const userGroups = {
-    winoto: 1,
+    winotoadmin: 1,
     planner: 2,
     worker: 3,
   };
@@ -56,6 +67,12 @@ function getUserGroupNumber(usergroup) {
   }
 }
 
+function getTokenFromReqHeader(req) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  return token;
+}
+
 module.exports = {
   parseJWT,
   readJSON,
@@ -63,4 +80,5 @@ module.exports = {
   replaceActiveRefreshToken,
   userGroupEnum,
   getUserGroupNumber,
+  getTokenFromReqHeader,
 };

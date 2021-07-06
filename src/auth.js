@@ -6,8 +6,7 @@ const util = require("./utility");
 const expiresTime = "15000m";
 
 function authenticateAccessToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  const token = util.getTokenFromReqHeader(req);
   if (token == null) {
     return res.status(401).json("missing token");
   }
@@ -46,20 +45,27 @@ async function authenticateUser(req, res) {
   }
 }
 
-function groupPermissions(req, res, next, minAccessLevel) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  const user = util.parseJWT(token);
-  const accessLevel = util.getUserGroupNumber(minAccessLevel);
-  const userGroup = util.getUserGroupNumber(user.usergroup);
-
-  if (userGroup > accessLevel) {
-    console.log("User not allowed");
-  } else {
-    console.log("Correct Permissions");
+async function groupPermissions(req, res, next, minAccessLevel) {
+  if (!util.userGroupEnum().hasOwnProperty(minAccessLevel)) {
+    res.status(400).send("Incorrect/missing access level");
+    return;
   }
+  const token = util.getTokenFromReqHeader(req);
+  const tokenUser = util.parseJWT(token);
+  const accessLevel = util.getUserGroupNumber(minAccessLevel);
+  const users = await util.readJSON("users.json");
 
-  res.send();
+  const result = users.find(
+    (userElement) => userElement.username === tokenUser.username
+  );
+  const userGroup = util.getUserGroupNumber(result.usergroup);
+  if (accessLevel == undefined) {
+    res.status(400).send("Bad request");
+  } else if (userGroup > accessLevel) {
+    res.status(401).send("User doesn't have sufficient permissions");
+  } else {
+    next();
+  }
 }
 
 module.exports = {

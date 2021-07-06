@@ -51,33 +51,69 @@ app.use(
 
 //Routing
 
-app.post("/users/add", async (req, res) => {
-  try {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const user = {
-      username: req.body.username,
-      usergroup: req.body.usergroup,
-      password: hashedPassword,
-    };
-    util.writeJSON(user, "users.json");
-    res.status(201).send();
-  } catch {
-    res.status(500).send();
+app.post(
+  "/users/add",
+  function (res, req, next) {
+    auth.authenticateAccessToken(res, req, next);
+  },
+  function (res, req, next) {
+    auth.groupPermissions(res, req, next, "planner");
+  },
+  async (req, res) => {
+    try {
+      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      const user = {
+        username: req.body.username,
+        usergroup: req.body.usergroup,
+        password: hashedPassword,
+      };
+      util.writeJSON(user, "users.json");
+      res.status(201).send();
+    } catch {
+      res.status(500).send("Couldnt add user");
+    }
   }
-});
+);
 
-app.post("/users/delete", (req, res) => {
-  const users = util.readJSON("users.json");
-  const user = users.find((user) => user.mail == req.body.mail);
-});
+app.post(
+  "/users/delete",
+  function (res, req, next) {
+    auth.authenticateAccessToken(res, req, next);
+  },
+  function (res, req, next) {
+    auth.groupPermissions(res, req, next, "planner");
+  },
+  async (req, res) => {
+    const userFileName = "users.json";
+    const users = await util.readJSON(userFileName);
+    const user = users.find((user) => user.username == req.body.username);
+    if (user !== undefined) {
+      const newUsers = users.filter((userElement) => userElement !== user);
+      util.writeJSON(newUsers, "users.json");
+      res.send("User deleted");
+    } else {
+      res.status(404).send("User not found");
+    }
+  }
+);
 
-app.get("/users/get", (req, res) => {
-  users = util.readJSON("users.json");
-  res.json(users);
-});
+app.get(
+  "/users/get",
+  function (res, req, next) {
+    auth.authenticateAccessToken(res, req, next);
+  },
+  function (res, req, next) {
+    auth.groupPermissions(res, req, next, "worker");
+  },
+  async (req, res) => {
+    users = await util.readJSON("users.json");
+    res.json(users);
+  }
+);
 
-app.post("/token", (req, res) => {
-  const refreshTokens = util.readJSON("refreshtokens.json");
+//Generate new accesstoken from refreshtoken
+app.post("/token", async (req, res) => {
+  const refreshTokens = await util.readJSON("refreshtokens.json");
   const refreshToken = req.body.token;
   if (refreshToken == null) return res.sendStatus(401);
   if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
@@ -94,7 +130,7 @@ app.get(
     auth.authenticateAccessToken(res, req, next);
   },
   function (res, req, next) {
-    auth.groupPermissions(res, req, next, "planner");
+    auth.groupPermissions(res, req, next, "worker");
   },
   (req, res) => {
     db.getAllJobs(req, res);
@@ -121,24 +157,78 @@ app.post("/login", async (req, res) => {
     res.json({ accessToken: accessToken, refreshToken: refreshToken });
   }
 });
-app.get("/workers", (req, res) => {
-  db.getUsers(req, res);
-});
-app.post("/workers/add", (req, res) => {
-  db.CreateWorker(req, res);
-});
-app.delete("/workers/delete", (req, res) => {
-  db.DeleteWorker(req, res);
-});
-app.post("/jobs/add", (req, res) => {
-  db.CreateJob(req, res);
-});
-app.delete("/jobs/delete", (req, res) => {
-  db.DeleteJob(req, res);
-});
-app.put("/jobs/update", (req, res) => {
-  db.UpdateJob(req, res);
-});
+app.get(
+  "/workers",
+  function (res, req, next) {
+    auth.authenticateAccessToken(res, req, next);
+  },
+  function (res, req, next) {
+    auth.groupPermissions(res, req, next, "worker");
+  },
+  (req, res) => {
+    db.getUsers(req, res);
+  }
+);
+app.post(
+  "/workers/add",
+  function (res, req, next) {
+    auth.authenticateAccessToken(res, req, next);
+  },
+  function (res, req, next) {
+    auth.groupPermissions(res, req, next, "planner");
+  },
+  (req, res) => {
+    db.CreateWorker(req, res);
+  }
+);
+app.delete(
+  "/workers/delete",
+  function (res, req, next) {
+    auth.authenticateAccessToken(res, req, next);
+  },
+  function (res, req, next) {
+    auth.groupPermissions(res, req, next, "planner");
+  },
+  (req, res) => {
+    db.DeleteWorker(req, res);
+  }
+);
+app.post(
+  "/jobs/add",
+  function (res, req, next) {
+    auth.authenticateAccessToken(res, req, next);
+  },
+  function (res, req, next) {
+    auth.groupPermissions(res, req, next, "planner");
+  },
+  (req, res) => {
+    db.CreateJob(req, res);
+  }
+);
+app.delete(
+  "/jobs/delete",
+  function (res, req, next) {
+    auth.authenticateAccessToken(res, req, next);
+  },
+  function (res, req, next) {
+    auth.groupPermissions(res, req, next, "planner");
+  },
+  (req, res) => {
+    db.DeleteJob(req, res);
+  }
+);
+app.put(
+  "/jobs/update",
+  function (res, req, next) {
+    auth.authenticateAccessToken(res, req, next);
+  },
+  function (res, req, next) {
+    auth.groupPermissions(res, req, next, "planner");
+  },
+  (req, res) => {
+    db.UpdateJob(req, res);
+  }
+);
 
 app.listen(port, () => {
   console.log(`App running on port ${port}`);
