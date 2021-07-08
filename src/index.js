@@ -67,8 +67,8 @@ app.post(
         usergroup: req.body.usergroup,
         password: hashedPassword,
       };
-      util.writeJSON(user, "users.json");
-      res.status(201).send();
+      util.writeJSON(user, "users.json", "extend");
+      res.status(201).send(user);
     } catch {
       res.status(500).send("Couldnt add user");
     }
@@ -89,7 +89,7 @@ app.post(
     const user = users.find((user) => user.username == req.body.username);
     if (user !== undefined) {
       const newUsers = users.filter((userElement) => userElement !== user);
-      util.writeJSON(newUsers, "users.json");
+      util.writeJSON(newUsers, "users.json", "replace");
       res.send("User deleted");
     } else {
       res.status(404).send("User not found");
@@ -148,9 +148,10 @@ app.post("/login", async (req, res) => {
   } else if (userAuthentication == "wrong password") {
     res.status(401).json("Wrong password");
   } else {
+    const users = await util.readJSON("users.json");
     const username = req.body.username;
-    const usergroup = req.body.usergroup;
-    const user = { username: username, usergroup: usergroup };
+    const userFromDisc = users.find((element) => element.username === username);
+    const user = { username: username, usergroup: userFromDisc.usergroup };
     const accessToken = auth.generateAccessToken(user);
     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
     util.replaceActiveRefreshToken(refreshToken);

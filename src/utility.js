@@ -1,3 +1,4 @@
+const { response } = require("express");
 const fs = require("fs");
 
 function parseJWT(token) {
@@ -16,11 +17,24 @@ async function readJSON(filename) {
   }
 }
 
-async function writeJSON(userData, filename) {
+async function writeJSON(userData, filename, replaceOrExtend) {
   try {
-    // let userDataArray = await readJSON(filename);
-    // const newArray = [...userDataArray, userData];
-    let data = JSON.stringify(userData, null, 2);
+    let userDataToJSON = null;
+    if (
+      replaceOrExtend == undefined ||
+      filename == undefined ||
+      userData == undefined
+    ) {
+      return "undefined arg";
+    }
+    if (replaceOrExtend === "extend") {
+      let userDataArray = await readJSON(filename);
+      userDataToJSON = [...userDataArray, userData];
+    } else {
+      userDataToJSON = userData;
+    }
+
+    let data = JSON.stringify(userDataToJSON, null, 2);
     fs.writeFile(filename, data, (err) => {
       if (err) throw err;
       console.log("The file has been saved");
