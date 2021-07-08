@@ -57,7 +57,7 @@ app.post(
     auth.authenticateAccessToken(res, req, next);
   },
   function (res, req, next) {
-    auth.groupPermissions(res, req, next, "planner");
+    auth.groupPermissions(res, req, next, "winotoadmin");
   },
   async (req, res) => {
     try {
@@ -81,7 +81,7 @@ app.post(
     auth.authenticateAccessToken(res, req, next);
   },
   function (res, req, next) {
-    auth.groupPermissions(res, req, next, "planner");
+    auth.groupPermissions(res, req, next, "winotoadmin");
   },
   async (req, res) => {
     const userFileName = "users.json";
