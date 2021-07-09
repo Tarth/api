@@ -150,8 +150,8 @@ app.post("/login", async (req, res) => {
   } else {
     const users = await util.readJSON("users.json");
     const username = req.body.username;
-    const userFromDisc = users.find((element) => element.username === username);
-    const user = { username: username, usergroup: userFromDisc.usergroup };
+    const userFromDisk = users.find((element) => element.username === username);
+    const user = { username: username, usergroup: userFromDisk.usergroup };
     const accessToken = auth.generateAccessToken(user);
     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
     util.replaceActiveRefreshToken(refreshToken);
