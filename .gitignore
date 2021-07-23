@@ -144,3 +144,5 @@ temp/
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,node
 users.json
 *.json
+cert.pem
+key.pem

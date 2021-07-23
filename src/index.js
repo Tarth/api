@@ -2,12 +2,17 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
+const fs = require("fs");
+const https = require("https");
+const privateKey = fs.readFileSync("./key.pem", "utf8");
+const certificate = fs.readFileSync("./cert.pem", "utf8");
+const credentials = { key: privateKey, cert: certificate };
 const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
 const rfs = require("rotating-file-stream");
 const db = require("./queries.js");
-const port = process.env.PORT || 3003;
+const httpsPort = process.env.HTTPS_PORT;
 const jwt = require("jsonwebtoken");
 const auth = require("./auth.js");
 const bcrypt = require("bcrypt");
@@ -231,6 +236,8 @@ app.put(
   }
 );
 
-app.listen(port, () => {
-  console.log(`App running on port ${port}`);
+const httpsServer = https.createServer(credentials, app);
+
+httpsServer.listen(httpsPort, () => {
+  console.log(`Https running on ${httpsPort}`);
 });
