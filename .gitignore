@@ -146,3 +146,6 @@ users.json
 *.json
 cert.pem
 key.pem
+src/privkey1.pem
+src/fullchain1.pem
+start api.bat
