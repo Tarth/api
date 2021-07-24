@@ -4,8 +4,15 @@ const bodyParser = require("body-parser");
 const app = express();
 const fs = require("fs");
 const https = require("https");
-const privateKey = fs.readFileSync(`${process.env.SSLPATH}/privkey.pem`, "utf8");
-const certificate = fs.readFileSync(`${process.env.SSLPATH}/fullchain.pem`, "utf8");
+const http = require("http");
+const privateKey = fs.readFileSync(
+  `${process.env.SSL_PATH}/privkey.pem`,
+  "utf8"
+);
+const certificate = fs.readFileSync(
+  `${process.env.SSL_PATH}/fullchain.pem`,
+  "utf8"
+);
 const credentials = { key: privateKey, cert: certificate };
 const cors = require("cors");
 const morgan = require("morgan");
@@ -17,6 +24,7 @@ const jwt = require("jsonwebtoken");
 const auth = require("./auth.js");
 const bcrypt = require("bcrypt");
 const util = require("./utility.js");
+const devmode = process.env.DEV_MODE;
 
 // Logging to file
 const time = new Date();
@@ -235,9 +243,16 @@ app.put(
     db.UpdateJob(req, res);
   }
 );
-
-const httpsServer = https.createServer(credentials, app);
-
-httpsServer.listen(httpsPort, () => {
-  console.log(`Https running on ${httpsPort}`);
-});
+// TODO: add DEV_MODE = false to env in prod
+if (devmode === "true") {
+  const httpServer = http.createServer(app);
+  const httpPort = httpsPort;
+  httpServer.listen(httpPort, () => {
+    console.log(`Dev Mode active: Http running on ${httpsPort}`);
+  });
+} else {
+  const httpsServer = https.createServer(credentials, app);
+  httpsServer.listen(httpsPort, () => {
+    console.log(`Https running on ${httpsPort}`);
+  });
+}
