@@ -150,8 +150,6 @@ app.get(
   }
 );
 
-app.get("/", (req, res) => {});
-
 app.post("/login", async (req, res) => {
   const userAuthentication = await auth.authenticateUser(req, res);
   if (userAuthentication == "missing user") {
@@ -243,7 +241,7 @@ app.put(
     db.UpdateJob(req, res);
   }
 );
-// TODO: add DEV_MODE = false to env in prod
+
 if (devmode === "true") {
   const httpServer = http.createServer(app);
   const httpPort = httpsPort;
