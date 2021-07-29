@@ -1,4 +1,5 @@
 const fs = require("fs");
+const db = require("./queries");
 
 function parseJWT(token) {
   const base64Payload = token.split(".")[1];
@@ -43,25 +44,29 @@ async function writeJSON(userData, filename, replaceOrExtend) {
   }
 }
 
-async function replaceActiveRefreshToken(activeToken) {
-  const filename = "refreshtokens.json";
-  const tokens = await readJSON(filename); // tokens: []
-  const decodedActiveToken = parseJWT(activeToken);
-  let newArray = [];
+// async function replaceActiveRefreshToken(activeToken) {
+//   const tokens = await readJSON(filename); // tokens: []
+//   const decodedActiveToken = parseJWT(activeToken);
+//   let newArray = [];
 
-  if (tokens.length == 0) {
-    newArray = [...tokens, activeToken];
-  } else {
-    for (const token of tokens) {
-      const decodeOldToken = parseJWT(token);
-      if (decodedActiveToken.name === decodeOldToken.name) {
-        newArray.push(activeToken);
-      } else {
-        newArray.push(token);
-      }
-    }
-  }
-  fs.writeFileSync(filename, JSON.stringify(newArray, null, 2));
+//   if (tokens.length == 0) {
+//     newArray = [...tokens, activeToken];
+//   } else {
+//     for (const token of tokens) {
+//       const decodeOldToken = parseJWT(token);
+//       if (decodedActiveToken.name === decodeOldToken.name) {
+//         newArray.push(activeToken);
+//       } else {
+//         newArray.push(token);
+//       }
+//     }
+//   }
+//   fs.writeFileSync(filename, JSON.stringify(newArray, null, 2));
+// }
+
+async function replaceActiveRefreshToken(req, res, activeToken) {
+  const tokensObj = await db.GetToken(); // tokens: [{id: <token>}, ...]
+  const decodedActiveToken = parseJWT(activeToken);
 }
 
 function userGroupEnum() {

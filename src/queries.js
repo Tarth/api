@@ -166,6 +166,42 @@ const UpdateJob = async (request, response) => {
   }
 };
 
+const PostToken = async (request, response, query) => {
+  const body = request.body;
+  try {
+    await pool.query(query, [body.token]);
+    await response.send("Token added to DB");
+  } catch (e) {
+    throw e;
+  }
+};
+
+const UpdateToken = async (request, response, query) => {
+  const body = request.body;
+  try {
+    await pool.query(query, [body.id, body.token]);
+  } catch (e) {}
+};
+
+const DeleteToken = async (request, response, query) => {
+  const body = request.body;
+  try {
+    const res = await pool.query(query, [body.id]);
+    response.send({ "Deleted rows": res.rowCount });
+  } catch (e) {
+    throw e;
+  }
+};
+
+const GetToken = async (request, response, query) => {
+  try {
+    const res = await pool.query(query);
+    response.send(res.rows);
+  } catch (e) {
+    throw e;
+  }
+};
+
 module.exports = {
   getAllJobs,
   getUsers,
@@ -174,4 +210,8 @@ module.exports = {
   CreateJob,
   DeleteJob,
   UpdateJob,
+  PostToken,
+  GetToken,
+  DeleteToken,
+  UpdateToken,
 };

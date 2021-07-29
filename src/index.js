@@ -137,6 +137,34 @@ app.post("/token", async (req, res) => {
   });
 });
 
+app.post("/posttoken", async (req, res) => {
+  try {
+    await db.PostToken(
+      req,
+      res,
+      "INSERT INTO refreshtokens (usertoken) VALUES ($1) RETURNING *"
+    );
+  } catch (e) {
+    res.send(e);
+  }
+});
+
+app.get("/token", async (req, res) => {
+  try {
+    await db.GetToken(req, res, "SELECT * FROM refreshtokens ORDER BY id ASC");
+  } catch (e) {
+    res.send(e);
+  }
+});
+
+app.delete("/token", async (req, res) => {
+  try {
+    await db.DeleteToken(req, res, "DELETE FROM refreshtokens WHERE id=$1");
+  } catch (e) {
+    res.send(e);
+  }
+});
+
 app.get(
   "/calendar",
   function (res, req, next) {
@@ -165,10 +193,17 @@ app.post("/login", async (req, res) => {
     const user = { username: username, usergroup: userFromDisk.usergroup };
     const accessToken = auth.generateAccessToken(user);
     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-    util.replaceActiveRefreshToken(refreshToken);
-    res.json({ accessToken: accessToken, refreshToken: refreshToken });
+    const tokenResponse = await db.PostToken(req, res, refreshToken);
+    if (
+      tokenResponse.hasOwnProperty("code") &&
+      tokenResponse.code === "23505"
+    ) {
+      res.send("refreshtoken already exists");
+    }
+    res.send({ accessToken: accessToken, refreshToken: refreshToken });
   }
 });
+
 app.get(
   "/workers",
   function (res, req, next) {
