@@ -60,24 +60,19 @@ app.use(
 
 app.post(
   "/users/add",
-  function (res, req, next) {
-    auth.authenticateAccessToken(res, req, next);
-  },
-  function (res, req, next) {
-    auth.groupPermissions(res, req, next, "winotoadmin");
-  },
+  // function (res, req, next) {
+  //   auth.authenticateAccessToken(res, req, next);
+  // },
+  // function (res, req, next) {
+  //   auth.groupPermissions(res, req, next, "winotoadmin");
+  // },
   async (req, res) => {
     try {
-      const hashedPassword = await bcrypt.hash(req.body.password, 10);
-      const user = {
-        username: req.body.username,
-        usergroup: req.body.usergroup,
-        password: hashedPassword,
-      };
-      util.writeJSON(user, "users.json", "extend");
+      req.body.password = await bcrypt.hash(req.body.password, 10);
+      const user = await db.CreateUser(req, res);
       res.status(201).send(user);
     } catch {
-      res.status(500).send("Couldnt add user");
+      res.status(500).send("Couldn't add user");
     }
   }
 );
@@ -222,7 +217,7 @@ app.post(
     auth.groupPermissions(res, req, next, "planner");
   },
   (req, res) => {
-    db.CreateWorker(req, res);
+    // db.CreateWorker(req, res);
   }
 );
 app.delete(

@@ -8,18 +8,32 @@ const pool = new Pool({
   port: process.env.POOL_PORT,
 });
 
-const getUsers = async (query, request, response) => {
-  pool.query(query, (error, results) => {
-    if (error) {
-      throw error;
-    }
+// const getUsers = async (query, request = null, response = null) => {
+//   pool.query(query, (error, results) => {
+//     if (error) {
+//       throw error;
+//     }
+//     morgan("dev", response);
+//     if (request === null || response === null) {
+//       return results.rows;
+//     } else {
+//       response.status(200).json(results.rows);
+//     }
+//   });
+// };
+const getUsers = async (query, request = null, response = null) => {
+  try {
+    const client = await pool.connect();
+    const results = await client.query(query);
     morgan("dev", response);
-    if (request === undefined || response === undefined) {
+    if (request === null || response === null) {
       return results.rows;
     } else {
       response.status(200).json(results.rows);
     }
-  });
+  } catch (e) {
+    throw new e();
+  }
 };
 
 let getAllJobs = (request, response) => {
@@ -35,7 +49,8 @@ let getAllJobs = (request, response) => {
   );
 };
 
-const CreateWorker = async (request, response) => {
+//Working on this.
+const CreateUser = async (request, response) => {
   const body = request.body;
   const client = await pool.connect();
   try {
@@ -195,7 +210,7 @@ const GetToken = async (query) => {
 module.exports = {
   getAllJobs,
   getUsers,
-  CreateWorker,
+  CreateUser,
   DeleteWorker,
   CreateJob,
   DeleteJob,
