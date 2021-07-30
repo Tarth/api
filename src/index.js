@@ -5,14 +5,8 @@ const app = express();
 const fs = require("fs");
 const https = require("https");
 const http = require("http");
-const privateKey = fs.readFileSync(
-  `${process.env.SSL_PATH}/privkey.pem`,
-  "utf8"
-);
-const certificate = fs.readFileSync(
-  `${process.env.SSL_PATH}/fullchain.pem`,
-  "utf8"
-);
+const privateKey = fs.readFileSync(`${process.env.SSL_PATH}/privkey.pem`, "utf8");
+const certificate = fs.readFileSync(`${process.env.SSL_PATH}/fullchain.pem`, "utf8");
 const credentials = { key: privateKey, cert: certificate };
 const cors = require("cors");
 const morgan = require("morgan");
@@ -137,18 +131,6 @@ app.post("/token", async (req, res) => {
   });
 });
 
-app.post("/posttoken", async (req, res) => {
-  try {
-    await db.PostToken(
-      req,
-      res,
-      "INSERT INTO refreshtokens (usertoken) VALUES ($1) RETURNING *"
-    );
-  } catch (e) {
-    res.send(e);
-  }
-});
-
 app.get("/token", async (req, res) => {
   try {
     await db.GetToken(req, res, "SELECT * FROM refreshtokens ORDER BY id ASC");
@@ -193,31 +175,46 @@ app.post("/login", async (req, res) => {
     const user = { username: username, usergroup: userFromDisk.usergroup };
     const accessToken = auth.generateAccessToken(user);
     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-    const tokenResponse = await db.PostToken(req, res, refreshToken);
-    if (
-      tokenResponse.hasOwnProperty("code") &&
-      tokenResponse.code === "23505"
-    ) {
-      res.send("refreshtoken already exists");
+    try {
+      const tokens = await db.GetToken("SELECT * FROM refreshtokens ORDER BY id ASC");
+      const parsedTokens = tokens.map((tokenObj) => ({
+        id: tokenObj.id,
+        parsedToken: util.parseJWT(tokenObj.usertoken),
+      }));
+      const parsedTokenAndId = parsedTokens.find(
+        (tokenObj) => tokenObj.parsedToken.username === username
+      );
+      if (tokens.length === 0 || parsedTokenAndId === undefined) {
+        db.PostToken("INSERT INTO refreshtokens (usertoken) VALUES ($1) RETURNING *", refreshToken);
+      } else {
+        db.UpdateToken(
+          "UPDATE refreshtokens SET usertoken = $1 WHERE id = $2",
+          refreshToken,
+          parsedTokenAndId.id
+        );
+      }
+    } catch (e) {
+      throw e;
+    } finally {
+      res.send({ accessToken: accessToken, refreshToken: refreshToken });
     }
-    res.send({ accessToken: accessToken, refreshToken: refreshToken });
   }
 });
 
 app.get(
-  "/workers",
-  function (res, req, next) {
-    auth.authenticateAccessToken(res, req, next);
-  },
-  function (res, req, next) {
-    auth.groupPermissions(res, req, next, "worker");
-  },
+  "/users",
+  // function (res, req, next) {
+  //   auth.authenticateAccessToken(res, req, next);
+  // },
+  // function (res, req, next) {
+  //   auth.groupPermissions(res, req, next, "worker");
+  // },
   (req, res) => {
-    db.getUsers(req, res);
+    db.getUsers("SELECT * FROM users ORDER BY name ASC", req, res);
   }
 );
 app.post(
-  "/workers/add",
+  "/users",
   function (res, req, next) {
     auth.authenticateAccessToken(res, req, next);
   },
@@ -229,7 +226,7 @@ app.post(
   }
 );
 app.delete(
-  "/workers/delete",
+  "/users",
   function (res, req, next) {
     auth.authenticateAccessToken(res, req, next);
   },

@@ -8,17 +8,18 @@ const pool = new Pool({
   port: process.env.POOL_PORT,
 });
 
-const getUsers = (request, response) => {
-  pool.query(
-    "SELECT * FROM users WHERE usergroup_id=3 ORDER BY name ASC",
-    (error, results) => {
-      if (error) {
-        throw error;
-      }
-      response.status(200).json(results.rows);
-      morgan("dev", response);
+const getUsers = async (query, request, response) => {
+  pool.query(query, (error, results) => {
+    if (error) {
+      throw error;
     }
-  );
+    morgan("dev", response);
+    if (request === undefined || response === undefined) {
+      return results.rows;
+    } else {
+      response.status(200).json(results.rows);
+    }
+  });
 };
 
 let getAllJobs = (request, response) => {
@@ -48,9 +49,7 @@ const CreateWorker = async (request, response) => {
       body.password,
     ]);
     await client.query("COMMIT");
-    await response
-      .status(201)
-      .send("User added successfully with ID: " + res.rows[0].id);
+    await response.status(201).send("User added successfully with ID: " + res.rows[0].id);
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;
@@ -95,13 +94,9 @@ const CreateJob = async (request, response) => {
       body.enddate,
       body.description,
     ]);
-    const queryTextWorkerJobTable =
-      "INSERT INTO workers_jobs(job_id, worker_id) VALUES ($1, $2);";
+    const queryTextWorkerJobTable = "INSERT INTO workers_jobs(job_id, worker_id) VALUES ($1, $2);";
     for (let i = 0; i < body.workerid.length; i++) {
-      await client.query(queryTextWorkerJobTable, [
-        res.rows[0].id,
-        body.workerid[i],
-      ]);
+      await client.query(queryTextWorkerJobTable, [res.rows[0].id, body.workerid[i]]);
     }
     await client.query("COMMIT");
     await response.status(201).send("Job added with ID: " + res.rows[0].id);
@@ -145,16 +140,12 @@ const UpdateJob = async (request, response) => {
       body.description,
       body.jobid,
     ]);
-    const queryDeleteWorkersFromTable =
-      "DELETE FROM workers_jobs WHERE job_id = $1;";
+    const queryDeleteWorkersFromTable = "DELETE FROM workers_jobs WHERE job_id = $1;";
     await client.query(queryDeleteWorkersFromTable, [body.jobid]);
     const queryCombineJobWithWorkers =
       "INSERT INTO workers_jobs(job_id, worker_id) VALUES ($1, $2);";
     for (let i = 0; i < body.workerid.length; i++) {
-      await client.query(queryCombineJobWithWorkers, [
-        body.jobid,
-        body.workerid[i],
-      ]);
+      await client.query(queryCombineJobWithWorkers, [body.jobid, body.workerid[i]]);
     }
     await client.query("COMMIT");
     await response.status(201).send("Job added with ID");
@@ -166,21 +157,20 @@ const UpdateJob = async (request, response) => {
   }
 };
 
-const PostToken = async (request, response, query) => {
-  const body = request.body;
+const PostToken = async (query, refreshtoken) => {
   try {
-    await pool.query(query, [body.token]);
-    await response.send("Token added to DB");
+    await pool.query(query, [refreshtoken]);
   } catch (e) {
     throw e;
   }
 };
 
-const UpdateToken = async (request, response, query) => {
-  const body = request.body;
+const UpdateToken = async (query, refreshtoken, id) => {
   try {
-    await pool.query(query, [body.id, body.token]);
-  } catch (e) {}
+    await pool.query(query, [refreshtoken, id]);
+  } catch (e) {
+    throw e;
+  }
 };
 
 const DeleteToken = async (request, response, query) => {
@@ -193,10 +183,10 @@ const DeleteToken = async (request, response, query) => {
   }
 };
 
-const GetToken = async (request, response, query) => {
+const GetToken = async (query) => {
   try {
     const res = await pool.query(query);
-    response.send(res.rows);
+    return res.rows;
   } catch (e) {
     throw e;
   }
