@@ -164,10 +164,12 @@ app.post("/login", async (req, res) => {
   } else if (userAuthentication == "wrong password") {
     res.status(401).json("Wrong password");
   } else {
-    const users = await util.readJSON("users.json");
+    const users = await db.getUsers(
+      "SELECT users.id, users.name, users.username, users.password, users.usergroup_id, usergroups.groupname AS username FROM users INNER JOIN usergroups ON users.usergroup_id = usergroups.id ORDER BY users.id ASC"
+    );
     const username = req.body.username;
-    const userFromDisk = users.find((element) => element.username === username);
-    const user = { username: username, usergroup: userFromDisk.usergroup };
+    const foundUser = users.find((element) => element.username === username);
+    const user = { username: username, usergroup: foundUser.usergroup };
     const accessToken = auth.generateAccessToken(user);
     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
     try {
@@ -216,8 +218,8 @@ app.post(
   function (res, req, next) {
     auth.groupPermissions(res, req, next, "planner");
   },
-  (req, res) => {
-    // db.CreateWorker(req, res);
+  async (req, res) => {
+    db.CreateUser(req, res);
   }
 );
 app.delete(

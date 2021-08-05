@@ -1,4 +1,6 @@
 const morgan = require("morgan");
+const bcrypt = require("bcrypt");
+const util = require("./utility");
 const Pool = require("pg").Pool;
 const pool = new Pool({
   user: process.env.POOL_USER,
@@ -49,10 +51,12 @@ let getAllJobs = (request, response) => {
   );
 };
 
-//Working on this.
 const CreateUser = async (request, response) => {
   const body = request.body;
   const client = await pool.connect();
+  request.body.password = await bcrypt.hash(request.body.password, 10);
+  const _usergroup_id = util.getUserGroupNumber(body.usergroup);
+  Object.assign(body, { usergroup_id: _usergroup_id });
   try {
     await client.query("BEGIN");
     const queryText =

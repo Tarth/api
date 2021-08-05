@@ -20,11 +20,7 @@ async function readJSON(filename) {
 async function writeJSON(userData, filename, replaceOrExtend) {
   try {
     let userDataToJSON = null;
-    if (
-      replaceOrExtend == undefined ||
-      filename == undefined ||
-      userData == undefined
-    ) {
+    if (replaceOrExtend == undefined || filename == undefined || userData == undefined) {
       return "undefined arg";
     }
     if (replaceOrExtend === "extend") {

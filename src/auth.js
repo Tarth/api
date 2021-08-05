@@ -30,7 +30,6 @@ async function authenticateUser(req, res) {
       return "missing mail/password";
     }
     const userData = await db.getUsers("SELECT * FROM users ORDER BY name ASC");
-    console.log(userData);
     const user = userData.find((user) => user.username == req.body.username);
     if (user == undefined) {
       return "missing user";
