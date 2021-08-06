@@ -1,5 +1,4 @@
 require("dotenv").config();
-// const userData = require("../users.json");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const util = require("./utility");
@@ -52,10 +51,13 @@ async function groupPermissions(req, res, next, minAccessLevel) {
   const token = util.getTokenFromReqHeader(req);
   const tokenUser = util.parseJWT(token);
   const accessLevel = util.getUserGroupNumber(minAccessLevel);
-  const users = await util.readJSON("users.json");
-
+  const query =
+    "SELECT users.id, users.username, users.usergroup_id, usergroups.groupname AS usergroup FROM users INNER JOIN usergroups ON users.usergroup_id = usergroups.id ORDER BY users.id ASC";
+  console.time("DB");
+  const users = await db.getUsers(query);
+  console.timeEnd("DB");
   const result = users.find((userElement) => userElement.username === tokenUser.username);
-  const userGroup = util.getUserGroupNumber(result.usergroup);
+  const userGroup = result.usergroup_id;
   if (accessLevel == undefined) {
     res.status(400).send("Bad request");
   } else if (userGroup > accessLevel) {

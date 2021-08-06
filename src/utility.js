@@ -7,63 +7,10 @@ function parseJWT(token) {
   return JSON.parse(payload.toString());
 }
 
-async function readJSON(filename) {
-  try {
-    let rawdata = fs.readFileSync(filename);
-    let parsedData = JSON.parse(rawdata);
-    return parsedData;
-  } catch (e) {
-    return e;
-  }
-}
-
-async function writeJSON(userData, filename, replaceOrExtend) {
-  try {
-    let userDataToJSON = null;
-    if (replaceOrExtend == undefined || filename == undefined || userData == undefined) {
-      return "undefined arg";
-    }
-    if (replaceOrExtend === "extend") {
-      let userDataArray = await readJSON(filename);
-      userDataToJSON = [...userDataArray, userData];
-    } else {
-      userDataToJSON = userData;
-    }
-
-    let data = JSON.stringify(userDataToJSON, null, 2);
-    fs.writeFile(filename, data, (err) => {
-      if (err) throw err;
-      console.log("The file has been saved");
-    });
-  } catch (err) {
-    throw err;
-  }
-}
-
-// async function replaceActiveRefreshToken(activeToken) {
-//   const tokens = await readJSON(filename); // tokens: []
+// async function replaceActiveRefreshToken(req, res, activeToken) {
+//   const tokensObj = await db.GetToken(); // tokens: [{id: <token>}, ...]
 //   const decodedActiveToken = parseJWT(activeToken);
-//   let newArray = [];
-
-//   if (tokens.length == 0) {
-//     newArray = [...tokens, activeToken];
-//   } else {
-//     for (const token of tokens) {
-//       const decodeOldToken = parseJWT(token);
-//       if (decodedActiveToken.name === decodeOldToken.name) {
-//         newArray.push(activeToken);
-//       } else {
-//         newArray.push(token);
-//       }
-//     }
-//   }
-//   fs.writeFileSync(filename, JSON.stringify(newArray, null, 2));
 // }
-
-async function replaceActiveRefreshToken(req, res, activeToken) {
-  const tokensObj = await db.GetToken(); // tokens: [{id: <token>}, ...]
-  const decodedActiveToken = parseJWT(activeToken);
-}
 
 function userGroupEnum() {
   const userGroups = {
@@ -89,9 +36,7 @@ function getTokenFromReqHeader(req) {
 
 module.exports = {
   parseJWT,
-  readJSON,
-  writeJSON,
-  replaceActiveRefreshToken,
+  // replaceActiveRefreshToken,
   userGroupEnum,
   getUserGroupNumber,
   getTokenFromReqHeader,

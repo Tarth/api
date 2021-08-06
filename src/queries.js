@@ -10,19 +10,6 @@ const pool = new Pool({
   port: process.env.POOL_PORT,
 });
 
-// const getUsers = async (query, request = null, response = null) => {
-//   pool.query(query, (error, results) => {
-//     if (error) {
-//       throw error;
-//     }
-//     morgan("dev", response);
-//     if (request === null || response === null) {
-//       return results.rows;
-//     } else {
-//       response.status(200).json(results.rows);
-//     }
-//   });
-// };
 const getUsers = async (query, request = null, response = null) => {
   try {
     const client = await pool.connect();
@@ -77,7 +64,7 @@ const CreateUser = async (request, response) => {
   }
 };
 
-const DeleteWorker = async (request, response) => {
+const DeleteUser = async (request, response) => {
   const body = request.body;
   const client = await pool.connect();
   try {
@@ -177,25 +164,28 @@ const UpdateJob = async (request, response) => {
 };
 
 const PostToken = async (query, refreshtoken) => {
+  const client = await pool.connect();
   try {
-    await pool.query(query, [refreshtoken]);
+    await client.query(query, [refreshtoken]);
   } catch (e) {
     throw e;
   }
 };
 
 const UpdateToken = async (query, refreshtoken, id) => {
+  const client = await pool.connect();
   try {
-    await pool.query(query, [refreshtoken, id]);
+    await client.query(query, [refreshtoken, id]);
   } catch (e) {
     throw e;
   }
 };
 
 const DeleteToken = async (request, response, query) => {
+  const client = await pool.connect();
   const body = request.body;
   try {
-    const res = await pool.query(query, [body.id]);
+    const res = await client.query(query, [body.id]);
     response.send({ "Deleted rows": res.rowCount });
   } catch (e) {
     throw e;
@@ -204,7 +194,8 @@ const DeleteToken = async (request, response, query) => {
 
 const GetToken = async (query) => {
   try {
-    const res = await pool.query(query);
+    const client = await pool.connect();
+    const res = await client.query(query);
     return res.rows;
   } catch (e) {
     throw e;
@@ -215,7 +206,7 @@ module.exports = {
   getAllJobs,
   getUsers,
   CreateUser,
-  DeleteWorker,
+  DeleteUser,
   CreateJob,
   DeleteJob,
   UpdateJob,

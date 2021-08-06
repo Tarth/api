@@ -58,64 +58,9 @@ app.use(
 
 //Routing
 
-app.post(
-  "/users/add",
-  // function (res, req, next) {
-  //   auth.authenticateAccessToken(res, req, next);
-  // },
-  // function (res, req, next) {
-  //   auth.groupPermissions(res, req, next, "winotoadmin");
-  // },
-  async (req, res) => {
-    try {
-      req.body.password = await bcrypt.hash(req.body.password, 10);
-      const user = await db.CreateUser(req, res);
-      res.status(201).send(user);
-    } catch {
-      res.status(500).send("Couldn't add user");
-    }
-  }
-);
-
-app.post(
-  "/users/delete",
-  function (res, req, next) {
-    auth.authenticateAccessToken(res, req, next);
-  },
-  function (res, req, next) {
-    auth.groupPermissions(res, req, next, "winotoadmin");
-  },
-  async (req, res) => {
-    const userFileName = "users.json";
-    const users = await util.readJSON(userFileName);
-    const user = users.find((user) => user.username == req.body.username);
-    if (user !== undefined) {
-      const newUsers = users.filter((userElement) => userElement !== user);
-      util.writeJSON(newUsers, "users.json", "replace");
-      res.send("User deleted");
-    } else {
-      res.status(404).send("User not found");
-    }
-  }
-);
-
-app.get(
-  "/users/get",
-  function (res, req, next) {
-    auth.authenticateAccessToken(res, req, next);
-  },
-  function (res, req, next) {
-    auth.groupPermissions(res, req, next, "worker");
-  },
-  async (req, res) => {
-    users = await util.readJSON("users.json");
-    res.json(users);
-  }
-);
-
 //Generate new accesstoken from refreshtoken
 app.post("/token", async (req, res) => {
-  const refreshTokens = await util.readJSON("refreshtokens.json");
+  const refreshTokens = await db.GetToken(req, res, "SELECT * FROM refreshtokens ORDER BY id ASC");
   const refreshToken = req.body.token;
   if (refreshToken == null) return res.sendStatus(401);
   if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
@@ -200,12 +145,12 @@ app.post("/login", async (req, res) => {
 
 app.get(
   "/users",
-  // function (res, req, next) {
-  //   auth.authenticateAccessToken(res, req, next);
-  // },
-  // function (res, req, next) {
-  //   auth.groupPermissions(res, req, next, "worker");
-  // },
+  function (res, req, next) {
+    auth.authenticateAccessToken(res, req, next);
+  },
+  function (res, req, next) {
+    auth.groupPermissions(res, req, next, "worker");
+  },
   (req, res) => {
     db.getUsers("SELECT * FROM users ORDER BY name ASC", req, res);
   }
@@ -216,7 +161,7 @@ app.post(
     auth.authenticateAccessToken(res, req, next);
   },
   function (res, req, next) {
-    auth.groupPermissions(res, req, next, "planner");
+    auth.groupPermissions(res, req, next, "winotoadmin");
   },
   async (req, res) => {
     db.CreateUser(req, res);
@@ -228,14 +173,14 @@ app.delete(
     auth.authenticateAccessToken(res, req, next);
   },
   function (res, req, next) {
-    auth.groupPermissions(res, req, next, "planner");
+    auth.groupPermissions(res, req, next, "winotoadmin");
   },
   (req, res) => {
-    db.DeleteWorker(req, res);
+    db.DeleteUser(req, res);
   }
 );
 app.post(
-  "/jobs/add",
+  "/jobs",
   function (res, req, next) {
     auth.authenticateAccessToken(res, req, next);
   },
@@ -247,7 +192,7 @@ app.post(
   }
 );
 app.delete(
-  "/jobs/delete",
+  "/jobs",
   function (res, req, next) {
     auth.authenticateAccessToken(res, req, next);
   },
@@ -259,7 +204,7 @@ app.delete(
   }
 );
 app.put(
-  "/jobs/update",
+  "/jobs",
   function (res, req, next) {
     auth.authenticateAccessToken(res, req, next);
   },
