@@ -1,5 +1,5 @@
 require("dotenv").config();
-const userData = require("../users.json");
+// const userData = require("../users.json");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const util = require("./utility");
@@ -43,28 +43,6 @@ async function authenticateUser(req, res) {
     res.status(500).send();
   }
 }
-
-// async function authenticateUser(req, res) {
-//   if (
-//     !req.body.hasOwnProperty("username") ||
-//     !req.body.hasOwnProperty("password")
-//   ) {
-//     return "missing mail/password";
-//   }
-//   const user = userData.find((user) => user.username == req.body.username);
-//   if (user == undefined) {
-//     return "missing user";
-//   }
-//   try {
-//     if (await bcrypt.compare(req.body.password, user.password)) {
-//       return user;
-//     } else {
-//       return "wrong password";
-//     }
-//   } catch {
-//     res.status(500).send();
-//   }
-// }
 
 async function groupPermissions(req, res, next, minAccessLevel) {
   if (!util.userGroupEnum().hasOwnProperty(minAccessLevel)) {
