@@ -23,6 +23,19 @@ function generateAccessToken(user) {
   });
 }
 
+// async function testGetUsers(req, res) {
+//   try {
+//     userData = await db.getUsers(
+//       "SELECT users.id, users.username, users.usergroup_id, usergroups.groupname AS usergroup FROM users INNER JOIN usergroups ON users.usergroup_id = usergroups.id ORDER BY users.id ASC",
+//       req,
+//       res
+//     );
+//     res.status(200).send(userData);
+//   } catch (e) {
+//     res.status(500).send(e);
+//   }
+// }
+
 async function authenticateUser(req, res) {
   try {
     if (!req.body.hasOwnProperty("username") || !req.body.hasOwnProperty("password")) {
@@ -38,8 +51,8 @@ async function authenticateUser(req, res) {
     } else {
       return "wrong password";
     }
-  } catch {
-    res.status(500).send();
+  } catch (e) {
+    res.status(500).send(e);
   }
 }
 
@@ -53,9 +66,7 @@ async function groupPermissions(req, res, next, minAccessLevel) {
   const accessLevel = util.getUserGroupNumber(minAccessLevel);
   const query =
     "SELECT users.id, users.username, users.usergroup_id, usergroups.groupname AS usergroup FROM users INNER JOIN usergroups ON users.usergroup_id = usergroups.id ORDER BY users.id ASC";
-  console.time("DB");
   const users = await db.getUsers(query);
-  console.timeEnd("DB");
   const result = users.find((userElement) => userElement.username === tokenUser.username);
   const userGroup = result.usergroup_id;
   if (accessLevel == undefined) {

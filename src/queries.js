@@ -10,10 +10,10 @@ const pool = new Pool({
   port: process.env.POOL_PORT,
 });
 
+// Use pool.query if you only need to run a single query to the db. Use pool.connect() if you need a db transaction. Dont forget to release the client after use!!!
 const getUsers = async (query, request = null, response = null) => {
   try {
-    const client = await pool.connect();
-    const results = await client.query(query);
+    const results = await pool.query(query);
     morgan("dev", response);
     if (request === null || response === null) {
       return results.rows;
