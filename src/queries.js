@@ -11,6 +11,7 @@ const pool = new Pool({
 });
 
 // Use pool.query if you only need to run a single query to the db. Use pool.connect() if you need a db transaction. Dont forget to release the client after use!!!
+
 const getUsers = async (query, request = null, response = null) => {
   try {
     const results = await pool.query(query);
@@ -25,17 +26,16 @@ const getUsers = async (query, request = null, response = null) => {
   }
 };
 
-let getAllJobs = (request, response) => {
-  pool.query(
-    "SELECT jobs.id AS job_id, jobs.start_date, jobs.end_date, jobs.description, users.id AS worker_id, users.name FROM jobs LEFT JOIN workers_jobs ON jobs.id = workers_jobs.job_id LEFT JOIN users ON workers_jobs.worker_id = users.id ORDER BY jobs.start_date DESC",
-    (error, results) => {
-      if (error) {
-        throw error;
-      }
-      response.status(200).json(results.rows);
-      morgan("dev", response);
-    }
-  );
+let getAllJobs = async (request, response) => {
+  try {
+    const results = await pool.query(
+      "SELECT jobs.id AS job_id, jobs.start_date, jobs.end_date, jobs.description, users.id AS worker_id, users.name FROM jobs LEFT JOIN workers_jobs ON jobs.id = workers_jobs.job_id LEFT JOIN users ON workers_jobs.worker_id = users.id ORDER BY jobs.start_date DESC"
+    );
+    response.status(200).json(results.rows);
+    morgan("dev", response);
+  } catch (e) {
+    res.send(e);
+  }
 };
 
 const CreateUser = async (request, response) => {
@@ -164,18 +164,16 @@ const UpdateJob = async (request, response) => {
 };
 
 const PostToken = async (query, refreshtoken) => {
-  const client = await pool.connect();
   try {
-    await client.query(query, [refreshtoken]);
+    await pool.query(query, [refreshtoken]);
   } catch (e) {
     throw e;
   }
 };
 
 const UpdateToken = async (query, refreshtoken, id) => {
-  const client = await pool.connect();
   try {
-    await client.query(query, [refreshtoken, id]);
+    await pool.query(query, [refreshtoken, id]);
   } catch (e) {
     throw e;
   }
@@ -194,8 +192,7 @@ const DeleteToken = async (request, response, query) => {
 
 const GetToken = async (query) => {
   try {
-    const client = await pool.connect();
-    const res = await client.query(query);
+    const res = await pool.query(query);
     return res.rows;
   } catch (e) {
     throw e;

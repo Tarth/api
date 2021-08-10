@@ -23,19 +23,6 @@ function generateAccessToken(user) {
   });
 }
 
-// async function testGetUsers(req, res) {
-//   try {
-//     userData = await db.getUsers(
-//       "SELECT users.id, users.username, users.usergroup_id, usergroups.groupname AS usergroup FROM users INNER JOIN usergroups ON users.usergroup_id = usergroups.id ORDER BY users.id ASC",
-//       req,
-//       res
-//     );
-//     res.status(200).send(userData);
-//   } catch (e) {
-//     res.status(500).send(e);
-//   }
-// }
-
 async function authenticateUser(req, res) {
   try {
     if (!req.body.hasOwnProperty("username") || !req.body.hasOwnProperty("password")) {
