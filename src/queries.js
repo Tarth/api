@@ -49,7 +49,7 @@ const CreateUser = async (request, response) => {
     const queryText =
       "INSERT INTO users(name, username, usergroup_id, password) VALUES($1, $2, $3, $4) RETURNING id";
     const res = await client.query(queryText, [
-      body.name,
+      body.workername,
       body.username,
       body.usergroup_id,
       body.password,
