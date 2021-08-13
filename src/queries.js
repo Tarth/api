@@ -19,8 +19,8 @@ const getUsers = async (request = null, response = null, query = null) => {
       results = await pool.query(query);
     } else {
       if (request !== null) {
-        if (request.query.hasOwnProperty("get")) {
-          const paramQuery = request.query.get;
+        if (request.query.hasOwnProperty("querySelector")) {
+          const paramQuery = request.query.querySelector;
           if (paramQuery === "workers") {
             results = await pool.query(
               "SELECT * FROM users WHERE name IS NOT NULL ORDER BY name ASC"
