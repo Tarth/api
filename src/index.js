@@ -111,7 +111,7 @@ app.post("/login", async (req, res) => {
   } else {
     const query =
       "SELECT users.id, users.name, users.username, users.password, users.usergroup_id, usergroups.groupname AS usergroup FROM users INNER JOIN usergroups ON users.usergroup_id = usergroups.id ORDER BY users.id ASC";
-    const users = await db.getUsers(query);
+    const users = await db.getUsers(null, null, query);
     const username = req.body.username;
     const foundUser = users.find((element) => element.username === username);
     const user = { username: username, usergroup: foundUser.usergroup };
@@ -143,6 +143,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
+// req.query is empty but still there even if no parameters has been sent with the request
 app.get(
   "/users",
   function (res, req, next) {
@@ -152,7 +153,7 @@ app.get(
     auth.groupPermissions(res, req, next, "worker");
   },
   (req, res) => {
-    db.getUsers("SELECT * FROM users ORDER BY name ASC", req, res);
+    db.getUsers(req, res);
   }
 );
 app.post(

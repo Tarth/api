@@ -12,9 +12,25 @@ const pool = new Pool({
 
 // Use pool.query if you only need to run a single query to the db. Use pool.connect() if you need a db transaction. Dont forget to release the client after use!!!
 
-const getUsers = async (query, request = null, response = null) => {
+const getUsers = async (request = null, response = null, query = null) => {
   try {
-    const results = await pool.query(query);
+    let results = [];
+    if (query !== null) {
+      results = await pool.query(query);
+    } else {
+      if (request !== null) {
+        if (request.query.hasOwnProperty("get")) {
+          const paramQuery = request.query.get;
+          if (paramQuery === "workers") {
+            results = await pool.query(
+              "SELECT * FROM users WHERE name IS NOT NULL ORDER BY name ASC"
+            );
+          } else {
+            results = await pool.query("SELECT * FROM users ORDER BY name ASC");
+          }
+        }
+      }
+    }
     morgan("dev", response);
     if (request === null || response === null) {
       return results.rows;
@@ -22,7 +38,7 @@ const getUsers = async (query, request = null, response = null) => {
       response.status(200).json(results.rows);
     }
   } catch (e) {
-    throw new e();
+    throw e;
   }
 };
 
