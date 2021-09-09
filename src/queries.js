@@ -12,7 +12,7 @@ const pool = new Pool({
 
 // Use pool.query if you only need to run a single query to the db. Use pool.connect() if you need a db transaction. Dont forget to release the client after use!!!
 
-const getUsers = async (request = null, response = null, query = null) => {
+const GetUsers = async (request = null, response = null, query = null) => {
   try {
     let results = [];
     if (query !== null) {
@@ -25,9 +25,9 @@ const getUsers = async (request = null, response = null, query = null) => {
             results = await pool.query(
               "SELECT * FROM users WHERE name IS NOT NULL ORDER BY name ASC"
             );
-          } else {
-            results = await pool.query("SELECT * FROM users ORDER BY name ASC");
           }
+        } else {
+          results = await pool.query("SELECT * FROM users ORDER BY name ASC");
         }
       }
     }
@@ -42,11 +42,17 @@ const getUsers = async (request = null, response = null, query = null) => {
   }
 };
 
-let getAllJobs = async (request, response) => {
+let GetJobs = async (request, response, query) => {
+  let results = [];
   try {
-    const results = await pool.query(
-      "SELECT jobs.id AS job_id, jobs.start_date, jobs.end_date, jobs.description, users.id AS worker_id, users.name FROM jobs LEFT JOIN workers_jobs ON jobs.id = workers_jobs.job_id LEFT JOIN users ON workers_jobs.worker_id = users.id ORDER BY jobs.start_date DESC"
-    );
+    if (request.query.hasOwnProperty("id")) {
+      const paramId = request.query.id;
+      results = await pool.query("SELECT * FROM workers_jobs WHERE worker_id=$1", [paramId]);
+    } else {
+      results = await pool.query(
+        "SELECT jobs.id AS job_id, jobs.start_date, jobs.end_date, jobs.description, users.id AS worker_id, users.name FROM jobs LEFT JOIN workers_jobs ON jobs.id = workers_jobs.job_id LEFT JOIN users ON workers_jobs.worker_id = users.id ORDER BY jobs.start_date DESC"
+      );
+    }
     response.status(200).json(results.rows);
     morgan("dev", response);
   } catch (e) {
@@ -216,8 +222,8 @@ const GetToken = async (query) => {
 };
 
 module.exports = {
-  getAllJobs,
-  getUsers,
+  getAllJobs: GetJobs,
+  getUsers: GetUsers,
   CreateUser,
   DeleteUser,
   CreateJob,
