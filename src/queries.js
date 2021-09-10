@@ -42,7 +42,7 @@ const GetUsers = async (request = null, response = null, query = null) => {
   }
 };
 
-let GetJobs = async (request, response, query) => {
+let GetJobs = async (request, response) => {
   let results = [];
   try {
     if (request.query.hasOwnProperty("id")) {
