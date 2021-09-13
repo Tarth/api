@@ -28,7 +28,7 @@ async function authenticateUser(req, res) {
     if (!req.body.hasOwnProperty("username") || !req.body.hasOwnProperty("password")) {
       return "missing mail/password";
     }
-    const userData = await db.getUsers(null, null, "SELECT * FROM users ORDER BY name ASC");
+    const userData = await db.GetUsers(null, null, "SELECT * FROM users ORDER BY name ASC");
     const user = userData.find((user) => user.username == req.body.username);
     if (user == undefined) {
       return "missing user";
@@ -53,7 +53,7 @@ async function groupPermissions(req, res, next, minAccessLevel) {
   const accessLevel = util.getUserGroupNumber(minAccessLevel);
   const query =
     "SELECT users.id, users.username, users.usergroup_id, usergroups.groupname AS usergroup FROM users INNER JOIN usergroups ON users.usergroup_id = usergroups.id ORDER BY users.id ASC";
-  const users = await db.getUsers(null, null, query);
+  const users = await db.GetUsers(null, null, query);
   const result = users.find((userElement) => userElement.username === tokenUser.username);
   const userGroup = result.usergroup_id;
   if (accessLevel == undefined) {

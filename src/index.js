@@ -96,7 +96,7 @@ app.get(
     auth.groupPermissions(res, req, next, "worker");
   },
   (req, res) => {
-    db.getAllJobs(req, res);
+    db.GetJobs(req, res);
   }
 );
 
@@ -111,7 +111,7 @@ app.post("/login", async (req, res) => {
   } else {
     const query =
       "SELECT users.id, users.name, users.username, users.password, users.usergroup_id, usergroups.groupname AS usergroup FROM users INNER JOIN usergroups ON users.usergroup_id = usergroups.id ORDER BY users.id ASC";
-    const users = await db.getUsers(null, null, query);
+    const users = await db.GetUsers(null, null, query);
     const username = req.body.username;
     const foundUser = users.find((element) => element.username === username);
     const user = { username: username, usergroup: foundUser.usergroup };
@@ -153,7 +153,7 @@ app.get(
     auth.groupPermissions(res, req, next, "worker");
   },
   (req, res) => {
-    db.getUsers(req, res);
+    db.GetUsers(req, res);
   }
 );
 app.post(

@@ -222,8 +222,8 @@ const GetToken = async (query) => {
 };
 
 module.exports = {
-  getAllJobs: GetJobs,
-  getUsers: GetUsers,
+  GetJobs,
+  GetUsers,
   CreateUser,
   DeleteUser,
   CreateJob,
