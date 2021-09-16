@@ -5,25 +5,47 @@ const util = require("./utility");
 const db = require("./queries");
 const expiresTime = "15000m";
 
-function authenticateAccessToken(req, res, next) {
+// function AuthenticateAccessToken(req, res, next) {
+//   const token = util.getTokenFromReqHeader(req);
+//   if (token == null) {
+//     return res.status(401).json("missing token");
+//   }
+//   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+//     if (err) return res.status(403).json("invalid token");
+//     req.user = user;
+//     next();
+//   });
+// }
+
+function AuthenticateAccessToken(req, res, next) {
+  const accessTokenSerect = process.env.ACCESS_TOKEN_SECRET;
+  AuthenticateToken(res, req, next, accessTokenSerect);
+}
+
+function AuthenticateRefreshToken(req, res, next) {
+  const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
+  AuthenticateToken(res, req, next, refreshTokenSecret);
+}
+
+function AuthenticateToken(res, req, next, tokenSecret) {
   const token = util.getTokenFromReqHeader(req);
   if (token == null) {
     return res.status(401).json("missing token");
   }
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+  jwt.verify(token, tokenSecret, (err, user) => {
     if (err) return res.status(403).json("invalid token");
     req.user = user;
     next();
   });
 }
 
-function generateAccessToken(user) {
+function GenerateAccessToken(user) {
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: expiresTime,
   });
 }
 
-async function authenticateUser(req, res) {
+async function AuthenticateUser(req, res) {
   try {
     if (!req.body.hasOwnProperty("username") || !req.body.hasOwnProperty("password")) {
       return "missing mail/password";
@@ -43,7 +65,7 @@ async function authenticateUser(req, res) {
   }
 }
 
-async function groupPermissions(req, res, next, minAccessLevel) {
+async function GroupPermissions(req, res, next, minAccessLevel) {
   if (!util.userGroupEnum().hasOwnProperty(minAccessLevel)) {
     res.status(400).send("Incorrect/missing access level");
     return;
@@ -66,8 +88,9 @@ async function groupPermissions(req, res, next, minAccessLevel) {
 }
 
 module.exports = {
-  authenticateAccessToken,
-  authenticateUser,
-  generateAccessToken,
-  groupPermissions,
+  AuthenticateAccessToken,
+  AuthenticateRefreshToken,
+  AuthenticateUser,
+  GenerateAccessToken,
+  GroupPermissions,
 };

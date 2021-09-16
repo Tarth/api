@@ -60,15 +60,26 @@ app.use(
 
 //Generate new accesstoken from refreshtoken
 app.post("/token", async (req, res) => {
-  const refreshTokens = await db.GetToken(req, res, "SELECT * FROM refreshtokens ORDER BY id ASC");
-  const refreshToken = req.body.token;
-  if (refreshToken == null) return res.sendStatus(401);
-  if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    const accessToken = auth.generateAccessToken({ name: user.name });
-    res.json({ accessToken: accessToken });
-  });
+  try {
+    const refreshTokens = await db.GetToken(
+      req,
+      res,
+      "SELECT * FROM refreshtokens ORDER BY id ASC"
+    );
+    const refreshToken = req.body.token;
+    if (refreshToken == null) return res.sendStatus(401);
+    const tokenFound = refreshTokens.find((token) => token.usertoken === refreshToken);
+    if (tokenFound === undefined) {
+      return res.sendStatus(403);
+    }
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+      if (err) return res.sendStatus(403);
+      const accessToken = auth.GenerateAccessToken({ name: user.name });
+      res.json({ accessToken: accessToken });
+    });
+  } catch (error) {
+    throw error;
+  }
 });
 
 app.get("/token", async (req, res) => {
@@ -90,10 +101,10 @@ app.delete("/token", async (req, res) => {
 app.get(
   "/calendar",
   function (res, req, next) {
-    auth.authenticateAccessToken(res, req, next);
+    auth.AuthenticateAccessToken(res, req, next);
   },
   function (res, req, next) {
-    auth.groupPermissions(res, req, next, "worker");
+    auth.GroupPermissions(res, req, next, "worker");
   },
   (req, res) => {
     db.GetJobs(req, res);
@@ -101,7 +112,7 @@ app.get(
 );
 
 app.post("/login", async (req, res) => {
-  const userAuthentication = await auth.authenticateUser(req, res);
+  const userAuthentication = await auth.AuthenticateUser(req, res);
   if (userAuthentication == "missing user") {
     res.status(403).json("User not found");
   } else if (userAuthentication == "missing mail/password") {
@@ -115,10 +126,10 @@ app.post("/login", async (req, res) => {
     const username = req.body.username;
     const foundUser = users.find((element) => element.username === username);
     const user = { username: username, usergroup: foundUser.usergroup };
-    const accessToken = auth.generateAccessToken(user);
+    const accessToken = auth.GenerateAccessToken(user);
     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
     try {
-      const tokens = await db.GetToken("SELECT * FROM refreshtokens ORDER BY id ASC");
+      const tokens = await db.GetToken(null, null, "SELECT * FROM refreshtokens ORDER BY id ASC");
       const parsedTokens = tokens.map((tokenObj) => ({
         id: tokenObj.id,
         parsedToken: util.parseJWT(tokenObj.usertoken),
@@ -147,10 +158,10 @@ app.post("/login", async (req, res) => {
 app.get(
   "/users",
   function (res, req, next) {
-    auth.authenticateAccessToken(res, req, next);
+    auth.AuthenticateAccessToken(res, req, next);
   },
   function (res, req, next) {
-    auth.groupPermissions(res, req, next, "worker");
+    auth.GroupPermissions(res, req, next, "worker");
   },
   (req, res) => {
     db.GetUsers(req, res);
@@ -159,10 +170,10 @@ app.get(
 app.post(
   "/users",
   function (res, req, next) {
-    auth.authenticateAccessToken(res, req, next);
+    auth.AuthenticateAccessToken(res, req, next);
   },
   function (res, req, next) {
-    auth.groupPermissions(res, req, next, "winotoadmin");
+    auth.GroupPermissions(res, req, next, "winotoadmin");
   },
   async (req, res) => {
     db.CreateUser(req, res);
@@ -171,10 +182,10 @@ app.post(
 app.delete(
   "/users",
   function (res, req, next) {
-    auth.authenticateAccessToken(res, req, next);
+    auth.AuthenticateAccessToken(res, req, next);
   },
   function (res, req, next) {
-    auth.groupPermissions(res, req, next, "winotoadmin");
+    auth.GroupPermissions(res, req, next, "winotoadmin");
   },
   (req, res) => {
     db.DeleteUser(req, res);
@@ -183,10 +194,10 @@ app.delete(
 app.post(
   "/jobs",
   function (res, req, next) {
-    auth.authenticateAccessToken(res, req, next);
+    auth.AuthenticateAccessToken(res, req, next);
   },
   function (res, req, next) {
-    auth.groupPermissions(res, req, next, "planner");
+    auth.GroupPermissions(res, req, next, "planner");
   },
   (req, res) => {
     db.CreateJob(req, res);
@@ -195,10 +206,10 @@ app.post(
 app.delete(
   "/jobs",
   function (res, req, next) {
-    auth.authenticateAccessToken(res, req, next);
+    auth.AuthenticateAccessToken(res, req, next);
   },
   function (res, req, next) {
-    auth.groupPermissions(res, req, next, "planner");
+    auth.GroupPermissions(res, req, next, "planner");
   },
   (req, res) => {
     db.DeleteJob(req, res);
@@ -207,10 +218,10 @@ app.delete(
 app.put(
   "/jobs",
   function (res, req, next) {
-    auth.authenticateAccessToken(res, req, next);
+    auth.AuthenticateAccessToken(res, req, next);
   },
   function (res, req, next) {
-    auth.groupPermissions(res, req, next, "planner");
+    auth.GroupPermissions(res, req, next, "planner");
   },
   (req, res) => {
     db.UpdateJob(req, res);

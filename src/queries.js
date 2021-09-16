@@ -212,7 +212,7 @@ const DeleteToken = async (request, response, query) => {
   }
 };
 
-const GetToken = async (query) => {
+const GetToken = async (request, response, query) => {
   try {
     const res = await pool.query(query);
     return res.rows;
