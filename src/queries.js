@@ -141,22 +141,8 @@ const DeleteJob = async (request, response) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    const workersJobsQueryText = "DELETE FROM workers_jobs WHERE job_id = $1";
-    if (Array.isArray(body)) {
-      for (i = 0; i < body.length; i++) {
-        await client.query(workersJobsQueryText, [body[i].jobid]);
-      }
-    } else {
-      await client.query(workersJobsQueryText, [body.jobid]);
-    }
-    const jobsQueryText = "DELETE FROM jobs WHERE id = $1";
-    if (Array.isArray(body)) {
-      for (i = 0; i < body.length; i++) {
-        await client.query(jobsQueryText, [body[i].jobid]);
-      }
-    } else {
-      await client.query(jobsQueryText, [body.jobid]);
-    }
+    await DeleteJobLogic(client, body, "DELETE FROM workers_jobs WHERE job_id = $1");
+    await DeleteJobLogic(client, body, "DELETE FROM jobs WHERE id = $1");
     await client.query("COMMIT");
     await response.status(201).send("Job deleted successfully");
   } catch (e) {
@@ -164,6 +150,20 @@ const DeleteJob = async (request, response) => {
     throw e;
   } finally {
     client.release();
+  }
+};
+
+const DeleteJobLogic = async (client, body, query) => {
+  try {
+    if (Array.isArray(body)) {
+      for (i = 0; i < body.length; i++) {
+        await client.query(query, [body[i].jobid]);
+      }
+    } else {
+      await client.query(query, [body.jobid]);
+    }
+  } catch (error) {
+    return error;
   }
 };
 
