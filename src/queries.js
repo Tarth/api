@@ -141,8 +141,8 @@ const DeleteJob = async (request, response) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    await DeleteJobLogic(client, body, "DELETE FROM workers_jobs WHERE job_id = $1");
-    await DeleteJobLogic(client, body, "DELETE FROM jobs WHERE id = $1");
+    await DeleteQuery(client, body, "DELETE FROM workers_jobs WHERE job_id = $1");
+    await DeleteQuery(client, body, "DELETE FROM jobs WHERE id = $1");
     await client.query("COMMIT");
     await response.status(201).send("Job deleted successfully");
   } catch (e) {
@@ -153,11 +153,11 @@ const DeleteJob = async (request, response) => {
   }
 };
 
-const DeleteJobLogic = async (client, body, query) => {
+const DeleteQuery = async (client, body, query) => {
   try {
-    if (Array.isArray(body)) {
-      for (i = 0; i < body.length; i++) {
-        await client.query(query, [body[i].jobid]);
+    if (Array.isArray(body.jobid)) {
+      for (i = 0; i < body.jobid.length; i++) {
+        await client.query(query, [body.jobid[i]]);
       }
     } else {
       await client.query(query, [body.jobid]);
