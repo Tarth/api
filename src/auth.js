@@ -27,6 +27,17 @@ function AuthenticateToken(res, req, next, tokenSecret) {
   });
 }
 
+function ValidateAccessToken(req, res, tokenSecret) {
+  const token = util.getTokenFromReqHeader(req);
+  if (token == null) {
+    return res.status(401).json("missing token");
+  }
+  jwt.verify(token, tokenSecret, (err, user) => {
+    if (err) return res.status(403).json("invalid token");
+    return res.json(user);
+  });
+}
+
 function GenerateAccessToken(user) {
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: expiresTime,
@@ -81,4 +92,5 @@ module.exports = {
   AuthenticateUser,
   GenerateAccessToken,
   GroupPermissions,
+  ValidateAccessToken,
 };

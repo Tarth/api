@@ -58,6 +58,10 @@ app.use(
 
 //Routing
 
+app.get("/validate", (req, res) => {
+  auth.ValidateAccessToken(req, res, process.env.ACCESS_TOKEN_SECRET);
+});
+
 //Generate new accesstoken from refreshtoken
 app.post("/token", async (req, res) => {
   try {
