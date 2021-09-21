@@ -167,25 +167,6 @@ const DeleteQuery = async (client, body, query) => {
   }
 };
 
-// const DeleteJob = async (request, response) => {
-//   const body = request.body;
-//   const client = await pool.connect();
-//   try {
-//     await client.query("BEGIN");
-//     const workersJobsQueryText = "DELETE FROM workers_jobs WHERE job_id = $1";
-//     await client.query(workersJobsQueryText, [body.jobid]);
-//     const jobsQueryText = "DELETE FROM jobs WHERE id = $1";
-//     await client.query(jobsQueryText, [body.jobid]);
-//     await client.query("COMMIT");
-//     await response.status(201).send("Job deleted successfully");
-//   } catch (e) {
-//     await client.query("ROLLBACK");
-//     throw e;
-//   } finally {
-//     client.release();
-//   }
-// };
-
 const UpdateJob = async (request, response) => {
   const body = request.body;
   const client = await pool.connect();

@@ -5,18 +5,6 @@ const util = require("./utility");
 const db = require("./queries");
 const expiresTime = "15000m";
 
-// function AuthenticateAccessToken(req, res, next) {
-//   const token = util.getTokenFromReqHeader(req);
-//   if (token == null) {
-//     return res.status(401).json("missing token");
-//   }
-//   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-//     if (err) return res.status(403).json("invalid token");
-//     req.user = user;
-//     next();
-//   });
-// }
-
 function AuthenticateAccessToken(req, res, next) {
   const accessTokenSerect = process.env.ACCESS_TOKEN_SECRET;
   AuthenticateToken(res, req, next, accessTokenSerect);

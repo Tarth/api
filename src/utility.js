@@ -7,11 +7,6 @@ function parseJWT(token) {
   return JSON.parse(payload.toString());
 }
 
-// async function replaceActiveRefreshToken(req, res, activeToken) {
-//   const tokensObj = await db.GetToken(); // tokens: [{id: <token>}, ...]
-//   const decodedActiveToken = parseJWT(activeToken);
-// }
-
 function userGroupEnum() {
   const userGroups = {
     winotoadmin: 1,
@@ -36,7 +31,6 @@ function getTokenFromReqHeader(req) {
 
 module.exports = {
   parseJWT,
-  // replaceActiveRefreshToken,
   userGroupEnum,
   getUserGroupNumber,
   getTokenFromReqHeader,
