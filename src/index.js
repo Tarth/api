@@ -116,14 +116,8 @@ app.get(
 );
 
 app.post("/login", async (req, res) => {
-  const userAuthentication = await auth.AuthenticateUser(req, res);
-  if (userAuthentication == "missing user") {
-    res.status(403).json("User not found");
-  } else if (userAuthentication == "missing mail/password") {
-    res.status(400).json("Mail or password missing from request");
-  } else if (userAuthentication == "wrong password") {
-    res.status(401).json("Wrong password");
-  } else {
+  try {
+    await auth.AuthenticateUser(req, res);
     const query =
       "SELECT users.id, users.name, users.username, users.password, users.usergroup_id, usergroups.groupname AS usergroup FROM users INNER JOIN usergroups ON users.usergroup_id = usergroups.id ORDER BY users.id ASC";
     const users = await db.GetUsers(null, null, query);
@@ -132,29 +126,26 @@ app.post("/login", async (req, res) => {
     const user = { username: username, usergroup: foundUser.usergroup };
     const accessToken = auth.GenerateAccessToken(user);
     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-    try {
-      const tokens = await db.GetToken(null, null, "SELECT * FROM refreshtokens ORDER BY id ASC");
-      const parsedTokens = tokens.map((tokenObj) => ({
-        id: tokenObj.id,
-        parsedToken: util.parseJWT(tokenObj.usertoken),
-      }));
-      const parsedTokenAndId = parsedTokens.find(
-        (tokenObj) => tokenObj.parsedToken.username === username
+    const tokens = await db.GetToken(null, null, "SELECT * FROM refreshtokens ORDER BY id ASC");
+    const parsedTokens = tokens.map((tokenObj) => ({
+      id: tokenObj.id,
+      parsedToken: util.parseJWT(tokenObj.usertoken),
+    }));
+    const parsedTokenAndId = parsedTokens.find(
+      (tokenObj) => tokenObj.parsedToken.username === username
+    );
+    if (tokens.length === 0 || parsedTokenAndId === undefined) {
+      db.PostToken("INSERT INTO refreshtokens (usertoken) VALUES ($1) RETURNING *", refreshToken);
+    } else {
+      db.UpdateToken(
+        "UPDATE refreshtokens SET usertoken = $1 WHERE id = $2",
+        refreshToken,
+        parsedTokenAndId.id
       );
-      if (tokens.length === 0 || parsedTokenAndId === undefined) {
-        db.PostToken("INSERT INTO refreshtokens (usertoken) VALUES ($1) RETURNING *", refreshToken);
-      } else {
-        db.UpdateToken(
-          "UPDATE refreshtokens SET usertoken = $1 WHERE id = $2",
-          refreshToken,
-          parsedTokenAndId.id
-        );
-      }
-    } catch (e) {
-      throw e;
-    } finally {
-      res.send({ accessToken: accessToken, refreshToken: refreshToken });
     }
+    res.send({ accessToken: accessToken, refreshToken: refreshToken });
+  } catch (e) {
+    res.send(e);
   }
 });
 
@@ -167,8 +158,13 @@ app.get(
   function (res, req, next) {
     auth.GroupPermissions(res, req, next, "worker");
   },
-  (req, res) => {
-    db.GetUsers(req, res);
+  async (req, res) => {
+    try {
+      const users = await db.GetUsers(req, res);
+      res.send(users);
+    } catch (error) {
+      res.send(error);
+    }
   }
 );
 app.post(

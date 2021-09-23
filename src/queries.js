@@ -32,13 +32,13 @@ const GetUsers = async (request = null, response = null, query = null) => {
       }
     }
     morgan("dev", response);
-    if (request === null || response === null) {
-      return results.rows;
-    } else {
-      response.status(200).json(results.rows);
-    }
-  } catch (e) {
-    throw e;
+    // if (request === null || response === null) {
+    // } else {
+    // response.status(200).json(results.rows);
+    return results.rows;
+    // }
+  } catch (error) {
+    throw error;
   }
 };
 
@@ -228,8 +228,8 @@ const GetToken = async (request, response, query) => {
   try {
     const res = await pool.query(query);
     return res.rows;
-  } catch (e) {
-    throw e;
+  } catch (error) {
+    throw error;
   }
 };
 

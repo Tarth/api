@@ -47,20 +47,20 @@ function GenerateAccessToken(user) {
 async function AuthenticateUser(req, res) {
   try {
     if (!req.body.hasOwnProperty("username") || !req.body.hasOwnProperty("password")) {
-      return "missing mail/password";
+      throw "missing mail/password";
     }
     const userData = await db.GetUsers(null, null, "SELECT * FROM users ORDER BY name ASC");
     const user = userData.find((user) => user.username == req.body.username);
     if (user == undefined) {
-      return "missing user";
+      throw "missing user";
     }
     if (await bcrypt.compare(req.body.password, user.password)) {
       return user;
     } else {
-      return "wrong password";
+      throw "wrong password";
     }
-  } catch (e) {
-    res.status(500).send(e);
+  } catch (error) {
+    throw error;
   }
 }
 
