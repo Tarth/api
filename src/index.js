@@ -144,8 +144,8 @@ app.post("/login", async (req, res) => {
       );
     }
     res.send({ accessToken: accessToken, refreshToken: refreshToken });
-  } catch (e) {
-    res.send(e);
+  } catch (error) {
+    res.send(error);
   }
 });
 

@@ -38,7 +38,7 @@ const GetUsers = async (request = null, response = null, query = null) => {
     return results.rows;
     // }
   } catch (error) {
-    throw error;
+    throw util.BaseResponse(error);
   }
 };
 
