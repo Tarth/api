@@ -55,7 +55,8 @@ async function AuthenticateUser(req, res) {
       throw "Missing user";
     }
     if (await bcrypt.compare(req.body.password, user.password)) {
-      return new util.SuccessResponse(user);
+      // return new util.SuccessResponse(user);
+      return user;
     } else {
       throw "Wrong password";
     }

@@ -32,11 +32,8 @@ const GetUsers = async (request = null, response = null, query = null) => {
       }
     }
     morgan("dev", response);
-    // if (request === null || response === null) {
-    // } else {
-    // response.status(200).json(results.rows);
     return results.rows;
-    // }
+    // return new util.SuccessResponse(results.rows);
   } catch (error) {
     throw util.BaseResponse(error);
   }

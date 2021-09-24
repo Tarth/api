@@ -1,35 +1,21 @@
 const fs = require("fs");
 const db = require("./queries");
 
-//48Bytes
-
-// class BaseResponse {
-//   constructor(_isSuccess) {
-//     this._isSuccess;
-//   }
-// }
-
-// class ErrorResponse extends BaseResponse {
-//   constructor(errorText, _isSuccess) {
-//     super(_isSuccess);
-//     _isSuccess = false;
-//     return { isSuccess: _isSuccess, errorText: errorText };
-//   }
-// }
 class BaseResponse {
-  constructor(_isSuccess, _errorText) {
-    this.isSuccess = _isSuccess;
+  constructor(_errorText) {
+    this.isSuccess = false;
     this.errorText = _errorText;
-
     return { isSuccess: this.isSuccess, errorText: this.errorText };
   }
 }
 
 class SuccessResponse extends BaseResponse {
-  constructor(_isSuccess, _successText, _data) {
-    super(_isSuccess, _errorText);
+  constructor(_data, _errorText = "") {
+    super(_errorText);
+    this.isSuccess = true;
+    this.errorText = _errorText;
     this.data = _data;
-    return { isSuccess: _isSuccess, successText: this.successText };
+    return { isSuccess: this.isSuccess, errorText: this.errorText, data: this.data };
   }
 }
 
