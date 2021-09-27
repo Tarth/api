@@ -42,13 +42,18 @@ const GetUsers = async (request = null, response = null, query = null) => {
 let GetJobs = async (request, response) => {
   let results = [];
   try {
-    if (request.query.hasOwnProperty("id")) {
-      const paramId = request.query.id;
-      results = await pool.query("SELECT * FROM workers_jobs WHERE worker_id=$1", [paramId]);
-    } else {
-      results = await pool.query(
-        "SELECT jobs.id AS job_id, jobs.start_date, jobs.end_date, jobs.description, users.id AS worker_id, users.name FROM jobs LEFT JOIN workers_jobs ON jobs.id = workers_jobs.job_id LEFT JOIN users ON workers_jobs.worker_id = users.id ORDER BY jobs.start_date DESC"
-      );
+    let param;
+    switch (request.query.hasOwnProperty(identifier)) {
+      case "id":
+        results = await pool.query("SELECT * FROM workers_jobs WHERE worker_id=$1", [param]);
+        break;
+      case "jobId":
+        results = await pool.query("SELECT * FROM workers_jobs WHERE job_id=$1", [param]);
+        break;
+      default:
+        results = await pool.query(
+          "SELECT jobs.id AS job_id, jobs.start_date, jobs.end_date, jobs.description, users.id AS worker_id, users.name FROM jobs LEFT JOIN workers_jobs ON jobs.id = workers_jobs.job_id LEFT JOIN users ON workers_jobs.worker_id = users.id ORDER BY jobs.start_date DESC"
+        );
     }
     response.status(200).json(results.rows);
     morgan("dev", response);
@@ -133,34 +138,42 @@ const CreateJob = async (request, response) => {
   }
 };
 
+// The delete query removes the entire job from workers_jobs and therefore removes all users on it. it has to remove only the worker in question. Look below
+//SELECT * FROM workers_jobs WHERE job_id=81 and worker_id=3
 const DeleteJob = async (request, response) => {
   const body = request.body;
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    await DeleteQuery(client, body, "DELETE FROM workers_jobs WHERE job_id = $1");
-    await DeleteQuery(client, body, "DELETE FROM jobs WHERE id = $1");
+    await DeleteSingleOrArray(
+      client,
+      body,
+      "DELETE FROM workers_jobs WHERE job_id = $1 AND worker_id = $2"
+    );
+    await DeleteSingleOrArray(client, body, "DELETE FROM jobs WHERE id = $1");
     await client.query("COMMIT");
     await response.status(201).send("Job deleted successfully");
-  } catch (e) {
+  } catch (error) {
     await client.query("ROLLBACK");
-    throw e;
+    throw error;
   } finally {
     client.release();
   }
 };
 
-const DeleteQuery = async (client, body, query) => {
+const DeleteSingleOrArray = async (client, body, query) => {
   try {
-    if (Array.isArray(body.jobid)) {
-      for (i = 0; i < body.jobid.length; i++) {
-        await client.query(query, [body.jobid[i]]);
+    let result;
+    if (Array.isArray(body)) {
+      for (let i = 0; i < body.length; i++) {
+        result = await client.query(query, [body[i].job_id, body[i].worker_id]);
       }
     } else {
-      await client.query(query, [body.jobid]);
+      result = await client.query(query, [body[i].job_id, body[i].worker_id]);
     }
+    return result;
   } catch (error) {
-    return error;
+    throw error;
   }
 };
 
