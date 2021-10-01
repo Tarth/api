@@ -124,7 +124,7 @@ const UpdateUser = async (request, response) => {
   try {
     let res = await pool.query(
       "UPDATE users SET name = $1, username = $2, usergroup_id = $3, password = $4 WHERE users.id = $5;",
-      [body.name, body.username, body.usergroup_id, body.password, body.id]
+      [body.workername, body.username, body.usergroup_id, body.password, body.id]
     );
     response.status(200).json({ updatedUserAmount: res.rowCount });
   } catch (error) {
