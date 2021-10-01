@@ -191,6 +191,19 @@ app.delete(
     db.DeleteUser(req, res);
   }
 );
+app.put(
+  "/users",
+  function (res, req, next) {
+    auth.AuthenticateAccessToken(res, req, next);
+  },
+  function (res, req, next) {
+    auth.GroupPermissions(res, req, next, "winotoadmin");
+  },
+  (req, res) => {
+    db.UpdateUser(req, res);
+  }
+);
+
 app.post(
   "/jobs",
   function (res, req, next) {
@@ -215,6 +228,7 @@ app.delete(
     db.DeleteJob(req, res);
   }
 );
+
 app.put(
   "/jobs",
   function (res, req, next) {

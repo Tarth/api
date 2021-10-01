@@ -118,6 +118,20 @@ const DeleteUser = async (request, response) => {
   }
 };
 
+const UpdateUser = async (request, response) => {
+  const body = request.body;
+  body.password = await bcrypt.hash(body.password, 10);
+  try {
+    let res = await pool.query(
+      "UPDATE users SET name = $1, username = $2, usergroup_id = $3, password = $4 WHERE users.id = $5;",
+      [body.name, body.username, body.usergroup_id, body.password, body.id]
+    );
+    response.status(200).json({ updatedUserAmount: res.rowCount });
+  } catch (error) {
+    util.BaseResponse(error);
+  }
+};
+
 const CreateJob = async (request, response) => {
   const body = request.body;
   const client = await pool.connect();
@@ -253,6 +267,7 @@ module.exports = {
   GetUsers,
   CreateUser,
   DeleteUser,
+  UpdateUser,
   CreateJob,
   DeleteJob,
   UpdateJob,
