@@ -151,3 +151,4 @@ src/fullchain1.pem
 start api.bat
 fullchain.pem
 privkey.pem
+*.session.sql
