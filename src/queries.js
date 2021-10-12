@@ -120,7 +120,9 @@ const DeleteUser = async (request, response) => {
 
 const UpdateUser = async (request, response) => {
   const body = request.body;
-  body.password = await bcrypt.hash(body.password, 10);
+  if (!(body.password.includes("$2b$10$") && body.password.length === 60)) {
+    body.password = await bcrypt.hash(body.password, 10);
+  }
   try {
     let res = await pool.query(
       "UPDATE users SET name = $1, username = $2, usergroup_id = $3, password = $4 WHERE users.id = $5;",
