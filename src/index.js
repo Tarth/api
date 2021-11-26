@@ -176,7 +176,11 @@ app.post(
     auth.GroupPermissions(res, req, next, "winotoadmin");
   },
   async (req, res) => {
-    db.CreateUser(req, res);
+    try {
+      await db.CreateUser(req, res);
+    } catch (error) {
+      res.send(error);
+    }
   }
 );
 app.delete(
