@@ -85,7 +85,7 @@ const CreateUser = async (request, response) => {
       body.password,
     ]);
     await client.query("COMMIT");
-    await response.status(201).send("User added successfully with ID: " + res.rows[0].id);
+    return { createdAmount: res.rowCount };
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;
@@ -110,6 +110,7 @@ const DeleteUser = async (request, response) => {
     }
     await client.query("COMMIT");
     response.status(200).json({ deletedAmount: res.rowCount }); // returns number of items deleted
+    // return { deletedAmount: res.rowCount };
   } catch (e) {
     await client.query("ROLLBACK");
     throw e;

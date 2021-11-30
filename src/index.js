@@ -56,6 +56,7 @@ app.use(
   })
 );
 
+const { BaseResponse, SuccessResponse } = util;
 //Routing
 
 app.get("/validate", (req, res) => {
@@ -167,6 +168,7 @@ app.get(
     }
   }
 );
+
 app.post(
   "/users",
   function (res, req, next) {
@@ -177,9 +179,10 @@ app.post(
   },
   async (req, res) => {
     try {
-      await db.CreateUser(req, res);
+      const result = await db.CreateUser(req, res);
+      res.send(new SuccessResponse(result));
     } catch (error) {
-      res.send(error);
+      res.send(new BaseResponse(error));
     }
   }
 );

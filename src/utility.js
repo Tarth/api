@@ -2,20 +2,19 @@ const fs = require("fs");
 const db = require("./queries");
 
 class BaseResponse {
-  constructor(_errorText) {
+  constructor(_data) {
     this.isSuccess = false;
-    this.errorText = _errorText;
-    return { isSuccess: this.isSuccess, errorText: this.errorText };
+    this.data = _data;
+    return { isSuccess: this.isSuccess, data: this.data };
   }
 }
 
 class SuccessResponse extends BaseResponse {
-  constructor(_data, _errorText = "") {
-    super(_errorText);
+  constructor(_data) {
+    super(_data);
     this.isSuccess = true;
-    this.errorText = _errorText;
     this.data = _data;
-    return { isSuccess: this.isSuccess, errorText: this.errorText, data: this.data };
+    return { isSuccess: this.isSuccess, data: this.data };
   }
 }
 
