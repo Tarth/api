@@ -79,7 +79,10 @@ app.post("/token", async (req, res) => {
     }
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
       if (err) return res.sendStatus(403);
-      const accessToken = auth.GenerateAccessToken({ name: user.name });
+      const accessToken = auth.GenerateAccessToken({
+        username: user.username,
+        usergroup: user.usergroup,
+      });
       res.json({ accessToken: accessToken });
     });
   } catch (error) {

@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const util = require("./utility");
 const db = require("./queries");
-const expiresTime = "15000m";
+const accessTokenExpireTime = "15m";
 
 function AuthenticateAccessToken(req, res, next) {
   const accessTokenSerect = process.env.ACCESS_TOKEN_SECRET;
@@ -40,7 +40,7 @@ function ValidateAccessToken(req, res, tokenSecret) {
 
 function GenerateAccessToken(user) {
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: expiresTime,
+    expiresIn: accessTokenExpireTime,
   });
 }
 
