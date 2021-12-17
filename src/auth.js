@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const util = require("./utility");
 const db = require("./queries");
-const accessTokenExpireTime = "30m";
+const accessTokenExpireTime = "10s";
 
 function AuthenticateAccessToken(req, res, next) {
   const accessTokenSerect = process.env.ACCESS_TOKEN_SECRET;
@@ -32,10 +32,11 @@ function ValidateAccessToken(req, res, tokenSecret) {
   if (token == null) {
     return res.status(401).json("missing token");
   }
-  jwt.verify(token, tokenSecret, (err, user) => {
-    if (err) return res.status(403).json("invalid token");
-    return res.json(user);
+  const response = jwt.verify(token, tokenSecret, (error, user) => {
+  if (error) return error
+    return user;
   });
+  return response
 }
 
 function GenerateAccessToken(user) {
