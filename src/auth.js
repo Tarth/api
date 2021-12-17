@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const util = require("./utility");
 const db = require("./queries");
-const accessTokenExpireTime = "15m";
+const accessTokenExpireTime = "30m";
 
 function AuthenticateAccessToken(req, res, next) {
   const accessTokenSerect = process.env.ACCESS_TOKEN_SECRET;
