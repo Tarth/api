@@ -83,7 +83,7 @@ app.get("/validate", (req, res) => {
   if (user.hasOwnProperty("username")) {
     res.send(new SuccessResponse(user));
   } else {
-    throw new BaseResponse(user);
+    res.send(new BaseResponse(user));
   }
 });
 
