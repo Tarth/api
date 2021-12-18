@@ -81,11 +81,10 @@ const { BaseResponse, SuccessResponse } = util;
 app.get("/validate", (req, res) => {
   const user = ValidateAccessToken(req, res, process.env.ACCESS_TOKEN_SECRET);
   if (user.hasOwnProperty("username")) {
-    res.send(new SuccessResponse(user))
+    res.send(new SuccessResponse(user));
   } else {
-    throw new BaseResponse(user)
-  } 
-  
+    throw new BaseResponse(user);
+  }
 });
 
 //Generate new accesstoken from refreshtoken

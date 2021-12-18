@@ -33,10 +33,10 @@ function ValidateAccessToken(req, res, tokenSecret) {
     return res.status(401).json("missing token");
   }
   const response = jwt.verify(token, tokenSecret, (error, user) => {
-  if (error) return error
+    if (error) return error;
     return user;
   });
-  return response
+  return response;
 }
 
 function GenerateAccessToken(user) {
