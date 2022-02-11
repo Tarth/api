@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
+const {xss} = require("express-xss-sanitizer")
 const app = express();
 const fs = require("fs");
 const https = require("https");
@@ -38,7 +39,10 @@ const {
 const bcrypt = require("bcrypt");
 const util = require("./utility.js");
 const devmode = process.env.DEV_MODE;
-
+let origin = "https//wiplanner.winoto.dk:3005"
+if (devmode) {
+  origin = "http://localhost:3005";
+}
 // Logging to file
 const time = new Date();
 const FileNameGenerator = (time) => {
@@ -59,7 +63,7 @@ const accessLogStream = rfs.createStream(FileNameGenerator(time), {
 
 app.use(
   cors({
-    origin: "*",
+    origin: origin,
   })
 );
 
@@ -74,6 +78,7 @@ app.use(
     extended: true,
   })
 );
+app.use(xss());
 
 const { BaseResponse, SuccessResponse } = util;
 //Routing
