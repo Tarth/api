@@ -39,7 +39,7 @@ const {
 const bcrypt = require("bcrypt");
 const util = require("./utility.js");
 const devmode = process.env.DEV_MODE;
-let origin = "https//wiplanner.winoto.dk:3005"
+let origin = "https://wiplanner.winoto.dk:3005"
 if (devmode) {
   origin = "http://localhost:3005";
 }
