@@ -152,3 +152,4 @@ start api.bat
 fullchain.pem
 privkey.pem
 *.sql
+package*.json
