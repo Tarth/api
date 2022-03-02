@@ -39,10 +39,7 @@ const {
 const bcrypt = require("bcrypt");
 const util = require("./utility.js");
 const devmode = process.env.DEV_MODE;
-let origin = "https://wiplanner.winoto.dk:3005"
-if (devmode) {
-  origin = "http://localhost:3005";
-}
+
 // Logging to file
 const time = new Date();
 const FileNameGenerator = (time) => {
@@ -63,7 +60,7 @@ const accessLogStream = rfs.createStream(FileNameGenerator(time), {
 
 app.use(
   cors({
-    origin: origin,
+    origin: process.env.ORIGIN_URL,
   })
 );
 
