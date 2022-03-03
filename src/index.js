@@ -169,9 +169,9 @@ app.post("/login", async (req, res) => {
         parsedTokenAndId.id
       );
     }
-    res.send({ accessToken: accessToken, refreshToken: refreshToken });
+    res.send(new SuccessResponse({ accessToken: accessToken, refreshToken: refreshToken }));
   } catch (error) {
-    res.send(error);
+    res.send(new BaseResponse(error));
   }
 });
 
